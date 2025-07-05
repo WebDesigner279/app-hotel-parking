@@ -1,8 +1,7 @@
-version: "3.8"
-
 services:
-  app:
-    container_name: template-dev
+  dev:
+    container_name: app-hotel-parking-dev
+    image: app-hotel-parking-dev
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -13,4 +12,5 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+      - PORT=3000
     command: npm run dev
