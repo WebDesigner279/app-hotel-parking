@@ -4,7 +4,7 @@ services:
     image: app-hotel-parking-prod
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     ports:
       - "3001:3000"
     environment:
