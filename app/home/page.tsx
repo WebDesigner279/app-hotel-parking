@@ -10,6 +10,8 @@ interface VehicleData {
   tipo: VehicleType;
   placa: string;
   modelo: string;
+  marca: string;
+  ano: string;
   cor: string;
   vaga: string;
   condutor: string;
@@ -30,6 +32,8 @@ export default function VehicleFormPage() {
     tipo: "carro",
     placa: "",
     modelo: "",
+    marca: "",
+    ano: "",
     cor: "",
     vaga: "",
     condutor: "",
@@ -58,7 +62,9 @@ export default function VehicleFormPage() {
       setTempoAtual(new Date());
     }, 60000); // 60 segundos
     
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const carregarDados = () => {
@@ -154,6 +160,8 @@ export default function VehicleFormPage() {
       tipo: "carro",
       placa: "",
       modelo: "",
+      marca: "",
+      ano: "",
       cor: "",
       vaga: "",
       condutor: "",
@@ -177,56 +185,28 @@ export default function VehicleFormPage() {
     }
   };
 
-  const handleBusca = () => {
-    const termo = normalizarTexto(busca);
-    if (!termo) {
-      carregarDados();
+  const realizarBusca = (termo: string) => {
+    const termoNormalizado = normalizarTexto(termo);
+    
+    // Carregar todos os dados do localStorage para buscar
+    const todosOsDados = JSON.parse(localStorage.getItem("veiculos") || "[]");
+    
+    if (!termoNormalizado) {
+      setResultados(todosOsDados);
       return;
     }
     
-    const filtrado = resultados.filter(
-      (item) =>
-        normalizarTexto(item.condutor).includes(termo) ||
-        normalizarTexto(item.placa.replace('-', '')).includes(termo.replace('-', '')) ||
-        normalizarTexto(item.modelo).includes(termo) ||
-        normalizarTexto(item.cor).includes(termo) ||
-        normalizarTexto(item.vaga).includes(termo) ||
-        normalizarTexto(item.documento).includes(termo)
+    const filtrado = todosOsDados.filter(
+      (item: VehicleData) =>
+        normalizarTexto(item.condutor).includes(termoNormalizado) ||
+        normalizarTexto(item.placa.replace('-', '')).includes(termoNormalizado.replace('-', '')) ||
+        normalizarTexto(item.modelo).includes(termoNormalizado) ||
+        normalizarTexto(item.cor).includes(termoNormalizado) ||
+        normalizarTexto(item.vaga).includes(termoNormalizado) ||
+        normalizarTexto(item.documento).includes(termoNormalizado)
     );
     
     setResultados(filtrado);
-    
-    // Se encontrou exatamente um resultado, carrega no formulário
-    if (filtrado.length === 1) {
-      const veiculo = filtrado[0];
-      setForm(veiculo);
-      setEditandoId(veiculo.id);
-      
-      // Se tem foto, carrega a preview
-      if (veiculo.fotoUrl) {
-        setPreviewFoto(veiculo.fotoUrl);
-      } else {
-        setPreviewFoto(null);
-      }
-      
-      // Opcional: fazer scroll para o formulário
-      const formulario = document.querySelector(`.${styles.form}`);
-      if (formulario) {
-        formulario.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-      
-      // Mostrar mensagem de sucesso
-      setTimeout(() => {
-        alert(`Veículo encontrado e carregado no formulário: ${veiculo.placa} - ${veiculo.condutor}`);
-      }, 100);
-      
-    } else if (filtrado.length === 0) {
-      // Se não encontrou nenhum resultado, mostrar mensagem
-      alert(`Nenhum veículo encontrado para "${busca}"`);
-    } else {
-      // Se encontrou múltiplos resultados, mostrar quantidade
-      alert(`Encontrados ${filtrado.length} veículos. Para editar um específico, clique no botão "✏️" na tabela.`);
-    }
   };
 
   const limparBusca = () => {
@@ -237,6 +217,14 @@ export default function VehicleFormPage() {
     if (editandoId) {
       handleCancelarEdicao();
     }
+  };
+
+  const handleBuscaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const novoTermo = e.target.value;
+    setBusca(novoTermo);
+    
+    // Realizar busca em tempo real
+    realizarBusca(novoTermo);
   };
 
   const handleEditar = (id: string) => {
@@ -704,49 +692,70 @@ export default function VehicleFormPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Cadastro de Veículo</h1>
-
-      <div className={styles.buscaWrapper}>
-        <input
-          type="text"
-          placeholder="Buscar por condutor, placa, modelo, cor, vaga ou documento..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleBusca();
-            }
-          }}
-        />
-        {busca && (
-          <button className={styles.limparBtn} onClick={limparBusca} title="Limpar busca">
-            ×
-          </button>
-        )}
-        <button onClick={handleBusca}>🔍</button>
-      </div>
-
-      {/* Estatísticas simples */}
-      <div className={styles.estatisticas}>
-        <div className={styles.estatItem}>
-          <span className={styles.estatLabel}>Total de Veículos:</span>
-          <span className={styles.estatValor}>{resultados.length}</span>
+    <div className={styles.appLayout}>
+      {/* Sidebar moderna */}
+      <aside className={styles.sidebar}>
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarTitle}>🚗 Hotel Parking</h2>
         </div>
-        {busca && (
-          <div className={styles.estatItem}>
-            <span className={styles.estatLabel}>Resultados da Busca:</span>
-            <span className={styles.estatValor}>{resultados.length}</span>
+
+        {/* Seção de busca */}
+        <div className={styles.searchSection}>
+          <h3 className={styles.sectionTitle}>Buscar Veículo</h3>
+          <div className={styles.buscaWrapper}>
+            <input
+              type="text"
+              placeholder="Condutor, placa, modelo..."
+              value={busca}
+              onChange={handleBuscaChange}
+            />
           </div>
-        )}
-        <button onClick={exportarParaCSV} className={styles.exportButton} title="Exportar dados para CSV">
-          📊 Exportar CSV
-        </button>
-        <button onClick={excluirTodosDados} className={styles.deleteAllButton} title="Excluir todos os dados">
-          🗑️ Excluir Todos
-        </button>
-      </div>
+          {busca && (
+            <div className={styles.searchButtons}>
+              <button className={styles.limparBtn} onClick={limparBusca} title="Limpar busca">
+                Limpar Busca
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Seção de estatísticas */}
+        <div className={styles.statsSection}>
+          <h3 className={styles.sectionTitle}>Estatísticas</h3>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>📊</div>
+            <div className={styles.statInfo}>
+              <span className={styles.statLabel}>Total de Veículos</span>
+              <span className={styles.statNumber}>{resultados.length}</span>
+            </div>
+          </div>
+          {busca && (
+            <div className={styles.statCard}>
+              <div className={styles.statIcon}>🔍</div>
+              <div className={styles.statInfo}>
+                <span className={styles.statLabel}>Resultados da Busca</span>
+                <span className={styles.statNumber}>{resultados.length}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Seção de ações */}
+        <div className={styles.actionsSection}>
+          <h3 className={styles.sectionTitle}>Ações</h3>
+          <button onClick={exportarParaCSV} className={styles.actionButton} title="Exportar dados para CSV">
+            📊 Exportar CSV
+          </button>
+          <button onClick={excluirTodosDados} className={styles.actionButtonDanger} title="Excluir todos os dados">
+            🗑️ Excluir Todos
+          </button>
+        </div>
+      </aside>
+
+      {/* Conteúdo principal */}
+      <main className={styles.mainContent}>
+        <div className={styles.container}>
+          <h1 className={styles.title}>Cadastro de Veículo</h1>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         {editandoId && (
@@ -783,10 +792,21 @@ export default function VehicleFormPage() {
             )}
           </label>
 
-          <label>
-            Modelo:
-            <input type="text" name="modelo" value={form.modelo} onChange={handleChange} required />
-          </label>
+
+        <label>
+          Modelo:
+          <input type="text" name="modelo" value={form.modelo} onChange={handleChange} required />
+        </label>
+
+        <label>
+          Marca:
+          <input type="text" name="marca" value={form.marca} onChange={handleChange} required />
+        </label>
+
+        <label>
+          Ano:
+          <input type="text" name="ano" value={form.ano} onChange={handleChange} required pattern="[0-9]{4}" maxLength={4} placeholder="2025" />
+        </label>
 
           <label>
             Cor:
@@ -798,23 +818,18 @@ export default function VehicleFormPage() {
             <input type="text" name="vaga" value={form.vaga} onChange={handleChange} required />
           </label>
 
-          <label>
-            Hora Entrada:
-            <input type="time" name="horaEntrada" value={form.horaEntrada} onChange={handleChange} />
-          </label>
+        <label>
+          Hora Entrada:
+          <input type="time" name="horaEntrada" value={form.horaEntrada} onChange={handleChange} />
+        </label>
 
-          <label>
-            Data Entrada:
-            <input type="date" name="dataEntrada" value={form.dataEntrada} onChange={handleChange} />
-          </label>
+        <label>
+          Data Entrada:
+          <input type="date" name="dataEntrada" value={form.dataEntrada} onChange={handleChange} />
+        </label>
 
-          <div className={styles.dataHoraActions}>
-            <button type="button" onClick={preencherDataHoraAtual} className={styles.agoreButton}>
-              🕐 Agora
-            </button>
-          </div>
-
-          <label>
+        <div className={styles.duracaoAgoraWrapper}>
+          <label className={styles.duracaoLabel}>
             Duração:
             <select name="duracaoMinutos" value={form.duracaoMinutos} onChange={handleChange}>
               <option value={15}>15 minutos</option>
@@ -826,6 +841,10 @@ export default function VehicleFormPage() {
               <option value={43200}>30 dias (Mensal)</option>
             </select>
           </label>
+          <button type="button" onClick={preencherDataHoraAtual} className={styles.agoraButton}>
+            🕐 
+          </button>
+        </div>
         </div>
 
         <div className={styles.fotoNomeGrupo}>
@@ -1011,6 +1030,8 @@ export default function VehicleFormPage() {
           </tbody>
         </table>
       </div>
-</div>
+        </div>
+      </main>
+    </div>
   );
 }
