@@ -838,6 +838,8 @@ export default function VehicleFormPage() {
               <option value={120}>2 horas</option>
               <option value={240}>4 horas</option>
               <option value={480}>8 horas</option>
+              <option value={720}>12 horas</option>
+              <option value={1440}>24 horas</option>
               <option value={43200}>30 dias (Mensal)</option>
             </select>
           </label>
