@@ -53,6 +53,7 @@ export default function VehicleFormPage() {
   const [resultados, setResultados] = useState<VehicleData[]>([]);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [tempoAtual, setTempoAtual] = useState(new Date());
+  const [sidebarAberta, setSidebarAberta] = useState(false);
 
   useEffect(() => {
     carregarDados();
@@ -67,9 +68,80 @@ export default function VehicleFormPage() {
     };
   }, []);
 
+  // UseEffect para fechar sidebar automaticamente ao rolar (exceto dentro do sidebar)
+  useEffect(() => {
+    const handlePageScroll = () => {
+      if (sidebarAberta) {
+        setSidebarAberta(false);
+      }
+    };
+
+    const handleMainContentScroll = () => {
+      if (sidebarAberta) {
+        setSidebarAberta(false);
+      }
+    };
+
+    // Adicionar listener para rolagem da página principal
+    window.addEventListener('scroll', handlePageScroll, { passive: true });
+    
+    // Adicionar listener para rolagem dentro do conteúdo principal
+    const mainContentElement = document.querySelector(`.${styles.mainContent}`);
+    if (mainContentElement) {
+      mainContentElement.addEventListener('scroll', handleMainContentScroll, { passive: true });
+    }
+
+    // Adicionar listener para rolagem dentro do container da tabela
+    const scrollWrapperElement = document.querySelector(`.${styles.scrollWrapper}`);
+    if (scrollWrapperElement) {
+      scrollWrapperElement.addEventListener('scroll', handleMainContentScroll, { passive: true });
+    }
+
+    // Adicionar listener para cliques fora do sidebar (apenas em mobile)
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (sidebarAberta && window.innerWidth <= 768) {
+        const sidebarElement = document.querySelector(`.${styles.sidebar}`);
+        const toggleElement = document.querySelector(`.${styles.sidebarToggle}`);
+        
+        if (sidebarElement && toggleElement && 
+            !sidebarElement.contains(event.target as Node) && 
+            !toggleElement.contains(event.target as Node)) {
+          setSidebarAberta(false);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleOutsideClick);
+
+    return () => {
+      window.removeEventListener('scroll', handlePageScroll);
+      document.removeEventListener('click', handleOutsideClick);
+      if (mainContentElement) {
+        mainContentElement.removeEventListener('scroll', handleMainContentScroll);
+      }
+      if (scrollWrapperElement) {
+        scrollWrapperElement.removeEventListener('scroll', handleMainContentScroll);
+      }
+    };
+  }, [sidebarAberta, styles.mainContent, styles.scrollWrapper, styles.sidebar, styles.sidebarToggle]);
+
   const carregarDados = () => {
     const data = JSON.parse(localStorage.getItem("veiculos") || "[]");
     setResultados(data);
+  };
+
+  // Funções para controlar o sidebar mobile
+  const toggleSidebar = () => {
+    setSidebarAberta(!sidebarAberta);
+  };
+
+  const fecharSidebar = () => {
+    setSidebarAberta(false);
+  };
+
+  // Fechar sidebar ao clicar no overlay
+  const handleOverlayClick = () => {
+    fecharSidebar();
   };
 
   // Função para capitalizar texto (primeira letra de cada palavra maiúscula)
@@ -744,8 +816,22 @@ export default function VehicleFormPage() {
 
   return (
     <div className={styles.appLayout}>
+      {/* Botão toggle para mobile - sempre visível */}
+      <button 
+        className={`${styles.sidebarToggle} ${sidebarAberta ? styles.close : styles.menu}`}
+        onClick={toggleSidebar}
+        aria-label={sidebarAberta ? "Fechar menu" : "Abrir menu"}
+      >
+      </button>
+
+      {/* Overlay para fechar sidebar no mobile */}
+      <div 
+        className={`${styles.sidebarOverlay} ${sidebarAberta ? styles.active : ''}`}
+        onClick={handleOverlayClick}
+      />
+
       {/* Sidebar moderna */}
-      <aside className={styles.sidebar}>
+      <aside className={`${styles.sidebar} ${sidebarAberta ? styles.open : ''}`}>
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>🚗 Hotel Parking</h2>
         </div>

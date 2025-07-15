@@ -6,6 +6,118 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow-x: hidden; /* Previne scroll horizontal na página */
   align-items: stretch; /* Faz os filhos terem a mesma altura */
+  position: relative;
+}
+
+/* Toggle button para mobile - sempre visível */
+.sidebarToggle {
+  display: none;
+  position: fixed;
+  top: 5.5rem; /* Abaixo da navbar */
+  left: 1rem;
+  z-index: 500; /* Menor que a navbar mas maior que o sidebar */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  
+  /* Garantir que sempre fique visível */
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  pointer-events: auto !important;
+  
+  &:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  &:active {
+    transform: scale(0.95) !important;
+  }
+  
+  /* Efeito pulsante sutil */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: inherit;
+    z-index: -1;
+    opacity: 0.2;
+    animation: pulse-ring 3s infinite;
+  }
+}
+
+/* Estados do botão toggle */
+.menu::before {
+  content: '☰';
+}
+
+.close::before {
+  content: '✕';
+  font-size: 1.1rem;
+}
+
+/* Animação de pulsação para o botão toggle */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.1;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Classe alternativa para ocultar ao rolar (opcional) */
+.sidebarToggle.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-100px);
+  pointer-events: none;
+}
+
+/* Classe para mostrar ao parar de rolar (opcional) */
+.sidebarToggle.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Overlay para fechar o sidebar em mobile */
+.sidebarOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 140; /* Menor que o sidebar */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* Não interfere quando inativo */
+  
+  &.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* Sidebar moderna */
@@ -799,24 +911,73 @@
 
 /* Responsividade para celulares e tablets */
 @media (max-width: 768px) {
+  .sidebarToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
   .appLayout {
     flex-direction: column;
   }
 
   .sidebar {
-    position: relative;
+    position: fixed;
+    top: 5rem; /* Abaixo da navbar que tem ~5rem de altura */
+    left: 0;
+    right: 0;
     width: 100%;
     max-width: 100%;
     height: auto;
+    max-height: 65vh; /* Reduzido para compensar a navbar */
     min-height: auto;
     padding: 2rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     border-radius: 0 0 15px 15px;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
+    z-index: 150; /* Reduzido para ser menos intrusivo */
+    transform: translateY(-100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+    overflow-y: auto; /* Permitir rolagem vertical */
+    overflow-x: hidden; /* Evitar rolagem horizontal */
+    opacity: 0;
+    pointer-events: none; /* Evita interferência quando fechado */
+    
+    /* Melhorar a rolagem no mobile */
+    -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
+    overscroll-behavior: contain; /* Evitar que a rolagem "escape" para a página */
+    
+    &.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 3px;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.6);
+      }
+    }
 
     .sidebarHeader {
       margin-bottom: 1.5rem;
       padding-bottom: 1rem;
+      display: flex;
+      justify-content: center; /* Centralizar o título */
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
       
       .sidebarTitle {
         font-size: 1.4rem;
@@ -829,7 +990,7 @@
     }
 
     .searchSection {
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem; /* Reduzido para mobile */
 
       .buscaWrapper {
         margin-bottom: 1rem;
@@ -860,11 +1021,11 @@
     }
 
     .statsSection {
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem; /* Reduzido para mobile */
 
       .statCard {
         padding: 1rem;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.6rem; /* Reduzido para mobile */
 
         .statIcon {
           font-size: 1.3rem;
@@ -884,16 +1045,23 @@
     }
 
     .actionsSection {
+      margin-bottom: 1rem; /* Adicionado margem inferior */
+      
       .actionButton, .actionButtonDanger {
         padding: 0.8rem;
         font-size: 0.9rem;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.6rem; /* Reduzido para mobile */
       }
     }
+  }
+  
+  .sidebarOverlay {
+    display: block;
   }
 
   .mainContent {
     padding: 1.5rem;
+    padding-top: 7rem; /* Espaço para a navbar + botão toggle */
   }
 
   .container {
@@ -1029,14 +1197,30 @@
 
 /* Responsividade para telas pequenas */
 @media (max-width: 480px) {
+  .sidebarToggle {
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+    top: 5rem; /* Ajuste para telas menores */
+  }
+  
+  /* Ajustar tamanho do ícone de fechar para telas pequenas */
+  .close::before {
+    font-size: 1rem !important;
+  }
+  
   .sidebar {
     padding: 1.5rem;
     border-radius: 0 0 12px 12px;
-    margin-bottom: 1rem;
+    max-height: 70vh; /* Ajustado para telas pequenas */
 
     .sidebarHeader {
       margin-bottom: 1.2rem;
       padding-bottom: 0.8rem;
+      display: flex;
+      justify-content: center; /* Centralizar o título */
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
       
       .sidebarTitle {
         font-size: 1.2rem;
@@ -1117,6 +1301,7 @@
 
   .mainContent {
     padding: 1rem;
+    padding-top: 6.5rem; /* Espaço para a navbar + botão toggle menor */
   }
 
   .container {
