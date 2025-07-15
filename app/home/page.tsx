@@ -844,7 +844,7 @@ export default function VehicleFormPage() {
             </select>
           </label>
           <button type="button" onClick={preencherDataHoraAtual} className={styles.agoraButton}>
-            🕐 
+            🕐 Agora
           </button>
         </div>
         </div>
