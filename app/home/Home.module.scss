@@ -590,11 +590,17 @@
 
 
   /* Colunas Tempo Decorrido, Tempo Permitido e Tempo Excedido mais largas */
-  .tabela td.tempoDecorrido, .tabela th.tempoDecorrido,
   .tabela td.tempoPermitido, .tabela th.tempoPermitido,
   .tabela td.tempoExcedido, .tabela th.tempoExcedido {
     min-width: 200px;
     max-width: 400px;
+  }
+
+  /* Coluna Tempo Decorrido menor - apenas para células td */
+  .tabela td.tempoDecorrido {
+    min-width: 120px;
+    max-width: 180px;
+    white-space: nowrap;
   }
 
   /* Remover border-radius das células coloridas de tempo */
@@ -750,6 +756,15 @@
   color: #17a2b8;
   font-weight: 500;
   background-color: #d1ecf1;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+}
+
+/* Estilo para entradas futuras */
+.tempoFuturo {
+  color: #6f42c1;
+  font-weight: 500;
+  background-color: #e2d9f3;
   padding: 0.2rem 0.4rem;
   border-radius: 3px;
 }

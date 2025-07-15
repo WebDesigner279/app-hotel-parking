@@ -438,6 +438,11 @@ export default function VehicleFormPage() {
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
     
+    // Se a entrada é futura, não há tempo excedido
+    if (diferencaMinutos < 0) {
+      return "Entrada futura";
+    }
+    
     const tempoExcedido = diferencaMinutos - duracaoMinutos;
     
     if (tempoExcedido <= 0) {
@@ -473,6 +478,23 @@ export default function VehicleFormPage() {
     }
   };
 
+  // Função para obter a classe CSS do tempo decorrido
+  const obterClasseTempoDecorrido = (dataEntrada: string, horaEntrada: string) => {
+    if (!dataEntrada || !horaEntrada) return styles.tempoDecorrido;
+
+    const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
+    const agora = new Date();
+    const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
+    const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
+    
+    // Se a entrada é futura, usar classe especial
+    if (diferencaMinutos < 0) {
+      return styles.tempoFuturo || styles.tempoDecorrido;
+    }
+    
+    return styles.tempoDecorrido;
+  };
+
   // Função para obter a classe CSS baseada no tempo excedido
   const obterClasseTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number) => {
     if (!dataEntrada || !horaEntrada) return styles.tempoExcedido;
@@ -481,6 +503,12 @@ export default function VehicleFormPage() {
     const agora = new Date();
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
+    
+    // Se a entrada é futura, usar classe especial
+    if (diferencaMinutos < 0) {
+      return styles.tempoFuturo || styles.tempoExcedido;
+    }
+    
     const tempoExcedido = diferencaMinutos - duracaoMinutos;
     
     if (tempoExcedido <= 0) {
@@ -519,6 +547,27 @@ export default function VehicleFormPage() {
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
     
+    // Se o tempo é negativo (entrada futura), mostrar "Futuro"
+    if (diferencaMinutos < 0) {
+      const minutosPositivos = Math.abs(diferencaMinutos);
+      if (minutosPositivos < 60) {
+        return `Futuro (${minutosPositivos} min)`;
+      } else if (minutosPositivos < 1440) {
+        const horas = Math.floor(minutosPositivos / 60);
+        const minutos = minutosPositivos % 60;
+        return minutos > 0 ? `Futuro (${horas}h ${minutos}min)` : `Futuro (${horas}h)`;
+      } else {
+        const dias = Math.floor(minutosPositivos / 1440);
+        const horas = Math.floor((minutosPositivos % 1440) / 60);
+        if (horas > 0) {
+          return `Futuro (${dias}d ${horas}h)`;
+        } else {
+          return `Futuro (${dias} dia${dias > 1 ? 's' : ''})`;
+        }
+      }
+    }
+    
+    // Tempo normal (passado)
     if (diferencaMinutos < 60) {
       return `${diferencaMinutos} min`;
     } else if (diferencaMinutos < 1440) {
@@ -543,6 +592,8 @@ export default function VehicleFormPage() {
       tipo: "carro",
       placa: "",
       modelo: "",
+      marca: "",
+      ano: "",
       cor: "",
       vaga: "",
       condutor: "",
@@ -981,7 +1032,7 @@ export default function VehicleFormPage() {
               <th>Hora Entrada</th>
               <th>Data Entrada</th>
               <th>Tempo Permitido</th>
-              <th>Tempo Decorrido</th>
+              <th>Tempo<br />Decorrido</th>
               <th>Tempo Excedido</th>
               <th>Ações</th>
             </tr>
@@ -1003,7 +1054,7 @@ export default function VehicleFormPage() {
                 <td className={v.duracaoMinutos === 43200 ? styles.duracaoMensal : ''}>
                   {formatarDuracao(v.duracaoMinutos)}
                 </td>
-                <td className={styles.tempoDecorrido}>
+                <td className={obterClasseTempoDecorrido(v.dataEntrada, v.horaEntrada)}>
                   {calcularTempoDecorrido(v.dataEntrada, v.horaEntrada)}
                 </td>
                 <td className={obterClasseTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos)}>
