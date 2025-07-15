@@ -6,6 +6,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow-x: hidden; /* Previne scroll horizontal na página */
   align-items: stretch; /* Faz os filhos terem a mesma altura */
+}
 
 /* Sidebar moderna */
 .sidebar {
@@ -574,7 +575,6 @@
       background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
     }
   }
-}
 
   .tabela {
     min-width: 1000px;
@@ -806,48 +806,98 @@
   .sidebar {
     position: relative;
     width: 100%;
+    max-width: 100%;
     height: auto;
-    padding: 1rem;
+    min-height: auto;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 15px 15px;
+    margin-bottom: 1rem;
 
     .sidebarHeader {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      
       .sidebarTitle {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
       }
     }
 
+    .sectionTitle {
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
     .searchSection {
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
+
+      .buscaWrapper {
+        margin-bottom: 1rem;
+
+        input {
+          padding: 0.8rem;
+          font-size: 0.9rem;
+          height: auto;
+          box-sizing: border-box;
+        }
+
+        .limparBtn {
+          padding: 0.7rem 1.2rem;
+          font-size: 0.9rem;
+          margin-top: 0.5rem;
+        }
+      }
 
       .searchButtons {
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.7rem;
+
+        .limparBtn {
+          padding: 0.8rem;
+          font-size: 0.9rem;
+        }
       }
     }
 
     .statsSection {
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
 
       .statCard {
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+
         .statIcon {
-          font-size: 1.2rem;
-          margin-right: 0.75rem;
+          font-size: 1.3rem;
+          margin-right: 1rem;
         }
 
         .statInfo {
           .statNumber {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
+          }
+
+          .statLabel {
+            font-size: 0.8rem;
           }
         }
+      }
+    }
+
+    .actionsSection {
+      .actionButton, .actionButtonDanger {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+        margin-bottom: 0.8rem;
       }
     }
   }
 
   .mainContent {
-    padding: 1rem;
+    padding: 1.5rem;
   }
 
   .container {
-    padding: 1rem;
+    padding: 1.5rem;
 
     .title {
       font-size: 1.8rem;
@@ -980,55 +1030,97 @@
 /* Responsividade para telas pequenas */
 @media (max-width: 480px) {
   .sidebar {
-    padding: 0.75rem;
+    padding: 1.5rem;
+    border-radius: 0 0 12px 12px;
+    margin-bottom: 1rem;
 
     .sidebarHeader {
-      margin-bottom: 1rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.8rem;
       
       .sidebarTitle {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
       }
-    }
-
-    .searchSection, .statsSection, .actionsSection {
-      margin-bottom: 1rem;
     }
 
     .sectionTitle {
       font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+      letter-spacing: 0.3px;
     }
 
-    .statCard {
-      padding: 0.75rem;
+    .searchSection {
+      margin-bottom: 1.5rem;
 
-      .statIcon {
-        font-size: 1.1rem;
-        margin-right: 0.5rem;
-      }
+      .buscaWrapper {
+        margin-bottom: 0.8rem;
 
-      .statInfo {
-        .statNumber {
-          font-size: 1.1rem;
+        input {
+          padding: 0.7rem;
+          font-size: 0.85rem;
+          border-radius: 8px;
         }
 
-        .statLabel {
-          font-size: 0.75rem;
+        .limparBtn {
+          padding: 0.6rem 1rem;
+          font-size: 0.85rem;
+          margin-top: 0.4rem;
+          border-radius: 8px;
+        }
+      }
+
+      .searchButtons {
+        gap: 0.6rem;
+
+        .limparBtn {
+          padding: 0.7rem;
+          font-size: 0.85rem;
+          border-radius: 8px;
         }
       }
     }
 
-    .actionButton, .actionButtonDanger {
-      padding: 0.6rem;
-      font-size: 0.85rem;
+    .statsSection {
+      margin-bottom: 1.5rem;
+
+      .statCard {
+        padding: 0.8rem;
+        margin-bottom: 0.6rem;
+        border-radius: 10px;
+
+        .statIcon {
+          font-size: 1.2rem;
+          margin-right: 0.8rem;
+        }
+
+        .statInfo {
+          .statNumber {
+            font-size: 1.3rem;
+          }
+
+          .statLabel {
+            font-size: 0.75rem;
+          }
+        }
+      }
+    }
+
+    .actionsSection {
+      .actionButton, .actionButtonDanger {
+        padding: 0.7rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.6rem;
+        border-radius: 8px;
+      }
     }
   }
 
   .mainContent {
-    padding: 0.75rem;
+    padding: 1rem;
   }
 
   .container {
-    padding: 1rem;
+    padding: 1.2rem;
     
     .title {
       font-size: 1.4rem;
