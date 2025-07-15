@@ -71,13 +71,14 @@ export default function VehicleFormPage() {
   // UseEffect para fechar sidebar automaticamente ao rolar (exceto dentro do sidebar)
   useEffect(() => {
     const handlePageScroll = () => {
-      if (sidebarAberta) {
+      // Apenas fechar sidebar no scroll da página em mobile se estiver aberto
+      if (sidebarAberta && window.innerWidth <= 768) {
         setSidebarAberta(false);
       }
     };
 
     const handleMainContentScroll = () => {
-      if (sidebarAberta) {
+      if (sidebarAberta && window.innerWidth <= 768) {
         setSidebarAberta(false);
       }
     };
@@ -103,6 +104,7 @@ export default function VehicleFormPage() {
         const sidebarElement = document.querySelector(`.${styles.sidebar}`);
         const toggleElement = document.querySelector(`.${styles.sidebarToggle}`);
         
+        // Verificar se o clique foi dentro do sidebar ou no toggle
         if (sidebarElement && toggleElement && 
             !sidebarElement.contains(event.target as Node) && 
             !toggleElement.contains(event.target as Node)) {
@@ -257,7 +259,7 @@ export default function VehicleFormPage() {
     }
   };
 
-  const realizarBusca = (termo: string) => {
+  const realizarBusca = (termo: string, fecharSidebar: boolean = false) => {
     const termoNormalizado = normalizarTexto(termo);
     
     // Carregar todos os dados do localStorage para buscar
@@ -265,6 +267,10 @@ export default function VehicleFormPage() {
     
     if (!termoNormalizado) {
       setResultados(todosOsDados);
+      // Limpar formulário se não há termo de busca
+      if (editandoId) {
+        handleCancelarEdicao();
+      }
       return;
     }
     
@@ -279,6 +285,29 @@ export default function VehicleFormPage() {
     );
     
     setResultados(filtrado);
+    
+    // Se encontrou resultados, carregar o primeiro no formulário para edição
+    if (filtrado.length > 0) {
+      const primeiroResultado = filtrado[0];
+      setForm(primeiroResultado);
+      setPreviewFoto(primeiroResultado.fotoUrl);
+      setEditandoId(primeiroResultado.id);
+    } else {
+      // Se não encontrou resultados, mostrar alerta apenas quando acionado pelo botão
+      if (fecharSidebar) {
+        alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento`);
+      }
+      
+      // Limpar formulário se estava editando
+      if (editandoId) {
+        handleCancelarEdicao();
+      }
+    }
+    
+    // Fechar sidebar apenas quando acionado pelo botão de busca (não em tempo real)
+    if (fecharSidebar && window.innerWidth <= 768) {
+      setSidebarAberta(false);
+    }
   };
 
   const limparBusca = () => {
@@ -297,6 +326,13 @@ export default function VehicleFormPage() {
     
     // Realizar busca em tempo real
     realizarBusca(novoTermo);
+  };
+
+  // Função para carregar um resultado específico no formulário
+  const carregarResultadoNoFormulario = (resultado: VehicleData) => {
+    setForm(resultado);
+    setPreviewFoto(resultado.fotoUrl);
+    setEditandoId(resultado.id);
   };
 
   const handleEditar = (id: string) => {
@@ -846,6 +882,13 @@ export default function VehicleFormPage() {
               value={busca}
               onChange={handleBuscaChange}
             />
+            <button 
+              className={styles.searchBtn} 
+              onClick={() => realizarBusca(busca, true)} 
+              title="Buscar"
+            >
+              🔍
+            </button>
           </div>
           {busca && (
             <div className={styles.searchButtons}>
@@ -863,7 +906,7 @@ export default function VehicleFormPage() {
             <div className={styles.statIcon}>📊</div>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Total de Veículos</span>
-              <span className={styles.statNumber}>{resultados.length}</span>
+              <span className={styles.statNumber}>{JSON.parse(localStorage.getItem("veiculos") || "[]").length}</span>
             </div>
           </div>
           {busca && (
@@ -876,6 +919,42 @@ export default function VehicleFormPage() {
             </div>
           )}
         </div>
+
+        {/* Seção de resultados da busca */}
+        {busca && resultados.length > 0 && (
+          <div className={styles.resultsSection}>
+            <h3 className={styles.sectionTitle}>Resultados</h3>
+            <div className={styles.resultsList}>
+              {resultados.slice(0, 5).map((resultado, index) => (
+                <div 
+                  key={resultado.id} 
+                  className={`${styles.resultCard} ${editandoId === resultado.id ? styles.active : ''}`}
+                >
+                  <div className={styles.resultInfo}>
+                    <div className={styles.resultTitle}>
+                      {resultado.placa} - {resultado.condutor}
+                    </div>
+                    <div className={styles.resultDetails}>
+                      {resultado.modelo} • Vaga {resultado.vaga}
+                    </div>
+                  </div>
+                  <button 
+                    className={styles.loadBtn}
+                    onClick={() => carregarResultadoNoFormulario(resultado)}
+                    title="Carregar no formulário"
+                  >
+                    📝
+                  </button>
+                </div>
+              ))}
+              {resultados.length > 5 && (
+                <div className={styles.moreResults}>
+                  E mais {resultados.length - 5} resultado(s)...
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Seção de ações */}
         <div className={styles.actionsSection}>

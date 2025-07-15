@@ -181,9 +181,11 @@
   .buscaWrapper {
     position: relative;
     margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
 
     input {
-      width: 100%;
+      flex: 1;
       padding: 0.75rem;
       border: none;
       border-radius: 8px;
@@ -200,6 +202,32 @@
         outline: none;
         background-color: rgba(255, 255, 255, 0.25);
         box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    .searchBtn {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      min-width: 50px;
+      display: none; /* Oculto por padrão em desktop/tablet */
+      align-items: center;
+      justify-content: center;
+      
+      &:hover {
+        background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
 
@@ -315,6 +343,121 @@
         order: 2;
       }
     }
+  }
+}
+
+/* Seção de resultados da busca na sidebar */
+.resultsSection {
+  margin-bottom: 2rem;
+
+  .resultsList {
+    max-height: 300px;
+    overflow-y: auto;
+    
+    /* Estilização da scrollbar */
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+    }
+  }
+
+  .resultCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    &.active {
+      background-color: rgba(40, 167, 69, 0.2);
+      border-color: rgba(40, 167, 69, 0.5);
+      
+      .resultInfo .resultTitle {
+        color: #d4edda;
+        font-weight: 600;
+      }
+    }
+
+    .resultInfo {
+      flex: 1;
+      min-width: 0;
+
+      .resultTitle {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .resultDetails {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.8);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .loadBtn {
+      background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      min-width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0.5rem;
+      
+      &:hover {
+        background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
+
+  .moreResults {
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem;
+    font-style: italic;
   }
 }
 
@@ -994,12 +1137,20 @@
 
       .buscaWrapper {
         margin-bottom: 1rem;
+        gap: 0.5rem;
 
         input {
           padding: 0.8rem;
           font-size: 0.9rem;
           height: auto;
           box-sizing: border-box;
+        }
+
+        .searchBtn {
+          padding: 0.8rem;
+          font-size: 0.9rem;
+          min-width: 50px;
+          display: flex; /* Mostrar apenas no mobile */
         }
 
         .limparBtn {
@@ -1041,6 +1192,41 @@
             font-size: 0.8rem;
           }
         }
+      }
+    }
+
+    .resultsSection {
+      margin-bottom: 1.5rem; /* Reduzido para mobile */
+
+      .resultsList {
+        max-height: 250px; /* Reduzido para mobile */
+      }
+
+      .resultCard {
+        padding: 0.7rem;
+        margin-bottom: 0.4rem;
+
+        .resultInfo {
+          .resultTitle {
+            font-size: 0.85rem;
+          }
+
+          .resultDetails {
+            font-size: 0.7rem;
+          }
+        }
+
+        .loadBtn {
+          padding: 0.4rem;
+          font-size: 0.8rem;
+          min-width: 32px;
+          height: 32px;
+        }
+      }
+
+      .moreResults {
+        font-size: 0.75rem;
+        padding: 0.4rem;
       }
     }
 
@@ -1238,11 +1424,20 @@
 
       .buscaWrapper {
         margin-bottom: 0.8rem;
+        gap: 0.5rem;
 
         input {
           padding: 0.7rem;
           font-size: 0.85rem;
           border-radius: 8px;
+        }
+
+        .searchBtn {
+          padding: 0.7rem;
+          font-size: 0.85rem;
+          min-width: 45px;
+          border-radius: 8px;
+          display: flex; /* Mostrar apenas no mobile */
         }
 
         .limparBtn {
@@ -1286,6 +1481,43 @@
             font-size: 0.75rem;
           }
         }
+      }
+    }
+
+    .resultsSection {
+      margin-bottom: 1.5rem;
+
+      .resultsList {
+        max-height: 200px; /* Reduzido para telas pequenas */
+      }
+
+      .resultCard {
+        padding: 0.6rem;
+        margin-bottom: 0.4rem;
+        border-radius: 8px;
+
+        .resultInfo {
+          .resultTitle {
+            font-size: 0.8rem;
+          }
+
+          .resultDetails {
+            font-size: 0.65rem;
+          }
+        }
+
+        .loadBtn {
+          padding: 0.35rem;
+          font-size: 0.75rem;
+          min-width: 30px;
+          height: 30px;
+          border-radius: 6px;
+        }
+      }
+
+      .moreResults {
+        font-size: 0.7rem;
+        padding: 0.3rem;
       }
     }
 
