@@ -128,8 +128,10 @@ export default function VehicleFormPage() {
   }, [sidebarAberta, styles.mainContent, styles.scrollWrapper, styles.sidebar, styles.sidebarToggle]);
 
   const carregarDados = () => {
-    const data = JSON.parse(localStorage.getItem("veiculos") || "[]");
-    setResultados(data);
+    if (typeof window !== 'undefined') {
+      const data = JSON.parse(localStorage.getItem("veiculos") || "[]");
+      setResultados(data);
+    }
   };
 
   // Funções para controlar o sidebar mobile
@@ -196,8 +198,10 @@ export default function VehicleFormPage() {
   };
 
   const salvarDados = (dados: VehicleData[]) => {
-    localStorage.setItem("veiculos", JSON.stringify(dados));
-    setResultados(dados);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("veiculos", JSON.stringify(dados));
+      setResultados(dados);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -263,50 +267,52 @@ export default function VehicleFormPage() {
     const termoNormalizado = normalizarTexto(termo);
     
     // Carregar todos os dados do localStorage para buscar
-    const todosOsDados = JSON.parse(localStorage.getItem("veiculos") || "[]");
+    if (typeof window !== 'undefined') {
+      const todosOsDados = JSON.parse(localStorage.getItem("veiculos") || "[]");
     
-    if (!termoNormalizado) {
-      setResultados(todosOsDados);
-      // Limpar formulário se não há termo de busca
-      if (editandoId) {
-        handleCancelarEdicao();
+      if (!termoNormalizado) {
+        setResultados(todosOsDados);
+        // Limpar formulário se não há termo de busca
+        if (editandoId) {
+          handleCancelarEdicao();
+        }
+        return;
       }
-      return;
-    }
     
-    const filtrado = todosOsDados.filter(
-      (item: VehicleData) =>
-        normalizarTexto(item.condutor).includes(termoNormalizado) ||
-        normalizarTexto(item.placa.replace('-', '')).includes(termoNormalizado.replace('-', '')) ||
-        normalizarTexto(item.modelo).includes(termoNormalizado) ||
-        normalizarTexto(item.cor).includes(termoNormalizado) ||
-        normalizarTexto(item.vaga).includes(termoNormalizado) ||
-        normalizarTexto(item.documento).includes(termoNormalizado)
-    );
+      const filtrado = todosOsDados.filter(
+        (item: VehicleData) =>
+          normalizarTexto(item.condutor).includes(termoNormalizado) ||
+          normalizarTexto(item.placa.replace('-', '')).includes(termoNormalizado.replace('-', '')) ||
+          normalizarTexto(item.modelo).includes(termoNormalizado) ||
+          normalizarTexto(item.cor).includes(termoNormalizado) ||
+          normalizarTexto(item.vaga).includes(termoNormalizado) ||
+          normalizarTexto(item.documento).includes(termoNormalizado)
+      );
     
-    setResultados(filtrado);
+      setResultados(filtrado);
     
-    // Se encontrou resultados, carregar o primeiro no formulário para edição
-    if (filtrado.length > 0) {
-      const primeiroResultado = filtrado[0];
-      setForm(primeiroResultado);
-      setPreviewFoto(primeiroResultado.fotoUrl);
-      setEditandoId(primeiroResultado.id);
-    } else {
-      // Se não encontrou resultados, mostrar alerta apenas quando acionado pelo botão
-      if (fecharSidebar) {
-        alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento`);
-      }
+      // Se encontrou resultados, carregar o primeiro no formulário para edição
+      if (filtrado.length > 0) {
+        const primeiroResultado = filtrado[0];
+        setForm(primeiroResultado);
+        setPreviewFoto(primeiroResultado.fotoUrl);
+        setEditandoId(primeiroResultado.id);
+      } else {
+        // Se não encontrou resultados, mostrar alerta apenas quando acionado pelo botão
+        if (fecharSidebar) {
+          alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento`);
+        }
       
-      // Limpar formulário se estava editando
-      if (editandoId) {
-        handleCancelarEdicao();
+        // Limpar formulário se estava editando
+        if (editandoId) {
+          handleCancelarEdicao();
+        }
       }
-    }
     
-    // Fechar sidebar apenas quando acionado pelo botão de busca (não em tempo real)
-    if (fecharSidebar && window.innerWidth <= 768) {
-      setSidebarAberta(false);
+      // Fechar sidebar apenas quando acionado pelo botão de busca (não em tempo real)
+      if (fecharSidebar && window.innerWidth <= 768) {
+        setSidebarAberta(false);
+      }
     }
   };
 
@@ -345,6 +351,8 @@ export default function VehicleFormPage() {
   };
 
   const handleExcluir = (id: string) => {
+    if (typeof window === 'undefined') return;
+    
     // Carregar todos os dados do localStorage para garantir que temos a lista completa
     const todosOsDados = JSON.parse(localStorage.getItem("veiculos") || "[]");
     
@@ -379,6 +387,8 @@ export default function VehicleFormPage() {
           tipo: "carro",
           placa: "",
           modelo: "",
+          marca: "",
+          ano: "",
           cor: "",
           vaga: "",
           condutor: "",
@@ -405,7 +415,9 @@ export default function VehicleFormPage() {
       const atualizados = todosOsDados.filter((v: VehicleData) => v.id !== id);
       
       // Salvar no localStorage
-      localStorage.setItem("veiculos", JSON.stringify(atualizados));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("veiculos", JSON.stringify(atualizados));
+      }
       
       // Atualizar estado dos resultados
       setResultados(atualizados);
@@ -796,6 +808,8 @@ export default function VehicleFormPage() {
   };
 
   const excluirTodosDados = () => {
+    if (typeof window === 'undefined') return;
+    
     // Carregar dados atuais do localStorage
     const dadosAtuais = JSON.parse(localStorage.getItem("veiculos") || "[]");
     
@@ -814,7 +828,12 @@ export default function VehicleFormPage() {
 
     if (confirmacao) {
       // Limpar localStorage
-      localStorage.removeItem("veiculos");
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("veiculos");
+      }
+      
+      // Atualizar estados
+      setResultados([]);
       
       // Se estiver editando, cancelar edição
       if (editandoId) {
@@ -824,6 +843,8 @@ export default function VehicleFormPage() {
           tipo: "carro",
           placa: "",
           modelo: "",
+          marca: "",
+          ano: "",
           cor: "",
           vaga: "",
           condutor: "",
@@ -906,7 +927,7 @@ export default function VehicleFormPage() {
             <div className={styles.statIcon}>📊</div>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Total de Veículos</span>
-              <span className={styles.statNumber}>{JSON.parse(localStorage.getItem("veiculos") || "[]").length}</span>
+              <span className={styles.statNumber}>{typeof window !== 'undefined' ? JSON.parse(localStorage.getItem("veiculos") || "[]").length : 0}</span>
             </div>
           </div>
           {busca && (
