@@ -1028,23 +1028,26 @@ export default function VehicleFormPage() {
               </span>
             )}
           </label>
+        </div>
 
+        <div className={styles.formRow}>
+          <label>
+            Modelo:
+            <input type="text" name="modelo" value={form.modelo} onChange={handleChange} required />
+          </label>
 
-        <label>
-          Modelo:
-          <input type="text" name="modelo" value={form.modelo} onChange={handleChange} required />
-        </label>
+          <label>
+            Marca:
+            <input type="text" name="marca" value={form.marca} onChange={handleChange} required />
+          </label>
 
-        <label>
-          Marca:
-          <input type="text" name="marca" value={form.marca} onChange={handleChange} required />
-        </label>
+          <label>
+            Ano:
+            <input type="text" name="ano" value={form.ano} onChange={handleChange} required pattern="[0-9]{4}" maxLength={4} placeholder="2025" />
+          </label>
+        </div>
 
-        <label>
-          Ano:
-          <input type="text" name="ano" value={form.ano} onChange={handleChange} required pattern="[0-9]{4}" maxLength={4} placeholder="2025" />
-        </label>
-
+        <div className={styles.formRow}>
           <label>
             Cor:
             <input type="text" name="cor" value={form.cor} onChange={handleChange} required />
@@ -1054,16 +1057,19 @@ export default function VehicleFormPage() {
             Nº Vaga:
             <input type="text" name="vaga" value={form.vaga} onChange={handleChange} required />
           </label>
+        </div>
 
-        <label>
-          Hora Entrada:
-          <input type="time" name="horaEntrada" value={form.horaEntrada} onChange={handleChange} />
-        </label>
+        <div className={styles.formRow}>
+          <label>
+            Hora Entrada:
+            <input type="time" name="horaEntrada" value={form.horaEntrada} onChange={handleChange} />
+          </label>
 
-        <label>
-          Data Entrada:
-          <input type="date" name="dataEntrada" value={form.dataEntrada} onChange={handleChange} />
-        </label>
+          <label>
+            Data Entrada:
+            <input type="date" name="dataEntrada" value={form.dataEntrada} onChange={handleChange} />
+          </label>
+        </div>
 
         <div className={styles.duracaoAgoraWrapper}>
           <label className={styles.duracaoLabel}>
@@ -1083,7 +1089,6 @@ export default function VehicleFormPage() {
           <button type="button" onClick={preencherDataHoraAtual} className={styles.agoraButton}>
             🕐 Agora
           </button>
-        </div>
         </div>
 
         <div className={styles.fotoNomeGrupo}>
