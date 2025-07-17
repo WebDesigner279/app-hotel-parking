@@ -1130,7 +1130,7 @@ export default function VehicleFormPage() {
           </label>
         </div>
 
-        <div className={styles.formRow}>
+        <div className={styles.duracaoAgoraWrapper}>
           <label>
             Hora Entrada:
             <input type="time" name="horaEntrada" value={form.horaEntrada} onChange={handleChange} />
@@ -1140,9 +1140,7 @@ export default function VehicleFormPage() {
             Data Entrada:
             <input type="date" name="dataEntrada" value={form.dataEntrada} onChange={handleChange} />
           </label>
-        </div>
 
-        <div className={styles.duracaoAgoraWrapper}>
           <label className={styles.duracaoLabel}>
             Duração:
             <select name="duracaoMinutos" value={form.duracaoMinutos} onChange={handleChange}>

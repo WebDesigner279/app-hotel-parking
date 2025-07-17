@@ -1297,6 +1297,7 @@
             padding: 0 10px !important;
             font-size: 0.9rem !important;
             height: 44px !important;
+            border-radius: 6px !important;
             -webkit-appearance: none;
             -moz-appearance: textfield;
             appearance: none;
@@ -1337,6 +1338,7 @@
         padding: 0 10px !important;
         font-size: 0.9rem !important;
         height: 44px !important;
+        border-radius: 6px !important;
         -webkit-appearance: none;
         -moz-appearance: textfield;
         appearance: none;
@@ -1611,6 +1613,7 @@
             padding: 0 8px !important;
             font-size: 0.85rem !important;
             height: 42px !important;
+            border-radius: 6px !important;
             -webkit-appearance: none;
             -moz-appearance: textfield;
             appearance: none;
@@ -1886,5 +1889,52 @@
 
   &:active {
     transform: translateY(0);
+  }
+}
+
+/* Responsividade específica para desktop */
+@media (min-width: 1025px) {
+  .duracaoAgoraWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-top: 0;
+    
+    label {
+      flex: none;
+      display: flex;
+      flex-direction: column;
+      min-width: 0; /* Permite que o flexbox funcione corretamente */
+      
+      /* Larguras padronizadas para todos os campos */
+      &:nth-child(1), /* Hora Entrada */
+      &:nth-child(2), /* Data Entrada */
+      &.duracaoLabel { /* Duração */
+        width: 240px; /* Largura padrão igual aos outros inputs */
+      }
+      
+      input, select {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      
+      /* Padronizar altura e border-radius dos inputs de date/time */
+      input[type="date"], 
+      input[type="time"] {
+        height: 40px !important;
+        border-radius: 6px !important;
+        padding: 0 12px !important;
+        font-size: 0.9rem !important;
+      }
+    }
+    
+    .agoraButton {
+      flex: none;
+      min-width: 110px;
+      width: auto;
+      height: 40px;
+      margin-bottom: 0;
+    }
   }
 }
