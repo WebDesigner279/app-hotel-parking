@@ -1939,62 +1939,283 @@
 
 /* Responsividade específica para desktop */
 @media (min-width: 1025px) {
+  /* Layout moderno e compacto para o formulário */
+  .form {
+    gap: 1.3rem;
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    
+    /* Primeira linha: Tipo e Placa em layout compacto */
+    .formRow:nth-child(2) {
+      display: grid;
+      grid-template-columns: 160px 220px 1fr;
+      gap: 1rem;
+      align-items: end;
+      
+      label:nth-child(1) {
+        /* Tipo */
+        min-width: 160px;
+      }
+      
+      label:nth-child(2) {
+        /* Placa */
+        min-width: 220px;
+      }
+    }
+    
+    /* Segunda linha: Modelo, Marca e Ano em layout otimizado */
+    .formRow:nth-child(3) {
+      display: grid;
+      grid-template-columns: 1fr 1fr 110px;
+      gap: 1rem;
+      align-items: end;
+      
+      label:nth-child(3) {
+        /* Ano */
+        min-width: 110px;
+      }
+    }
+    
+    /* Terceira linha: Cor e Vaga em layout 70/30 */
+    .formRow:nth-child(4) {
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: 1rem;
+      align-items: end;
+      
+      label:nth-child(2) {
+        /* Vaga */
+        min-width: 140px;
+      }
+    }
+    
+    /* Padronizar inputs para larguras menores e layout mais compacto */
+    input, select {
+      height: 36px !important;
+      padding: 0 10px !important;
+      font-size: 0.85rem !important;
+      border-radius: 5px !important;
+      border: 1.5px solid #e2e8f0 !important;
+      transition: all 0.2s ease !important;
+      
+      &::placeholder {
+        font-size: 0.8rem;
+        color: #9ca3af;
+      }
+      
+      &:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1) !important;
+        transform: translateY(-1px) !important;
+      }
+      
+      &:hover {
+        border-color: #cbd5e0 !important;
+      }
+    }
+    
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0;
+      letter-spacing: 0.2px;
+      
+      input, select {
+        margin-top: 0.25rem;
+      }
+    }
+  }
+  
+  /* Seção de duração, hora e data em linha horizontal compacta */
   .duracaoAgoraWrapper {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    gap: 1rem;
+    gap: 0.8rem;
     margin-top: 0;
+    background: rgba(102, 126, 234, 0.03);
+    padding: 1.2rem;
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.1);
     
     label {
       flex: none;
       display: flex;
       flex-direction: column;
-      min-width: 0; /* Permite que o flexbox funcione corretamente */
+      min-width: 0;
       
-      /* Larguras padronizadas para todos os campos */
-      &:nth-child(1), /* Hora Entrada */
-      &:nth-child(2), /* Data Entrada */
+      /* Larguras otimizadas e menores para layout compacto */
+      &:nth-child(1) { /* Hora Entrada */
+        width: 130px;
+      }
+      
+      &:nth-child(2) { /* Data Entrada */
+        width: 150px;
+      }
+      
       &.duracaoLabel { /* Duração */
-        width: 240px; /* Largura padrão igual aos outros inputs */
+        width: 170px;
       }
       
       input, select {
         width: 100%;
         box-sizing: border-box;
-      }
-      
-      /* Padronizar altura, border-radius, espaçamento e cores dos inputs de date/time */
-      input[type="date"], 
-      input[type="time"] {
-        height: 40px !important;
-        border-radius: 6px !important;
-        padding: 0 12px !important;
-        font-size: 0.9rem !important;
-        margin-top: 0.4rem !important;
-        border: 2px solid #e2e8f0 !important;
-        transition: all 0.3s ease !important;
-        background-color: white !important;
+        height: 36px !important;
+        font-size: 0.85rem !important;
         
-        &:focus {
-          outline: none !important;
-          border-color: #667eea !important;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-          transform: translateY(-1px) !important;
-        }
-        
-        &:hover {
-          border-color: #cbd5e0 !important;
+        /* Padronizar altura, border-radius, espaçamento e cores dos inputs de date/time */
+        &[type="date"], 
+        &[type="time"] {
+          padding: 0 8px !important;
+          border-radius: 5px !important;
+          margin-top: 0.25rem !important;
+          border: 1.5px solid #e2e8f0 !important;
+          transition: all 0.2s ease !important;
+          background-color: white !important;
+          
+          &:focus {
+            outline: none !important;
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1) !important;
+            transform: translateY(-1px) !important;
+          }
+          
+          &:hover {
+            border-color: #cbd5e0 !important;
+          }
         }
       }
     }
     
     .agoraButton {
       flex: none;
-      min-width: 110px;
+      min-width: 85px;
       width: auto;
-      height: 40px;
+      height: 36px;
       margin-bottom: 0;
+      font-size: 0.75rem;
+      padding: 0 10px;
+      border-radius: 5px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+      }
+    }
+  }
+  
+  /* Seção de foto e dados pessoais com layout otimizado */
+  .fotoNomeGrupo {
+    gap: 1.8rem;
+    margin: 1.3rem 0;
+    background: rgba(248, 250, 252, 0.8);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    
+    .fotoPreview {
+      .fotoContainer, .fotoPlaceholder {
+        width: 85px;
+        height: 105px;
+      }
+      
+      .fotoButton {
+        font-size: 0.72rem;
+        padding: 0.35rem 0.5rem;
+        border-radius: 4px;
+      }
+    }
+    
+    .dadosPessoais {
+      .formRow {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 0.8rem;
+        
+        /* Primeira linha de dados pessoais: Nome e RG/CPF */
+        &:nth-child(1) {
+          grid-template-columns: 1fr 170px;
+          
+          label:nth-child(2) {
+            /* RG/CPF */
+            min-width: 170px;
+          }
+        }
+        
+        /* Segunda linha: Telefones */
+        &:nth-child(2) {
+          grid-template-columns: 1fr 1fr;
+        }
+        
+        /* Terceira linha: Profissão e Tipo Contrato */
+        &:nth-child(3) {
+          grid-template-columns: 1fr 150px;
+          
+          label:nth-child(2) {
+            /* Tipo Contrato */
+            min-width: 150px;
+          }
+        }
+      }
+    }
+  }
+  
+  /* Botões com layout otimizado */
+  .buttonGroup {
+    margin-top: 1.8rem;
+    
+    button {
+      min-width: 100px;
+      padding: 0.55rem 1.1rem;
+      font-size: 0.82rem;
+      border-radius: 5px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-1px);
+      }
+    }
+  }
+  
+  /* Título do formulário mais compacto */
+  .title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+    font-weight: 700;
+  }
+  
+  /* Indicador de edição mais compacto para desktop */
+  .editingIndicator {
+    padding: 0.7rem 1.2rem;
+    margin-bottom: 1.2rem;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    text-align: left;
+    
+    strong {
+      font-weight: 600;
+    }
+  }
+  
+  /* Container otimizado para desktop */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+    
+    .title {
+      font-size: 1.9rem;
+      margin-bottom: 1.8rem;
     }
   }
 }

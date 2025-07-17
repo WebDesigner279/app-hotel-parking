@@ -18,7 +18,7 @@ interface VehicleData {
   condutor: string;
   documento: string;
   telefone: string;
-  whatsapp: string;
+  email: string;
   profissao: string;
   tipoContrato: string;
   horaEntrada: string;
@@ -40,7 +40,7 @@ export default function VehicleFormPage() {
     condutor: "",
     documento: "",
     telefone: "",
-    whatsapp: "",
+    email: "",
     profissao: "",
     tipoContrato: "mensalista",
     horaEntrada: "",
@@ -246,7 +246,7 @@ export default function VehicleFormPage() {
       condutor: "",
       documento: "",
       telefone: "",
-      whatsapp: "",
+      email: "",
       profissao: "",
       tipoContrato: "mensalista",
       horaEntrada: "",
@@ -288,7 +288,7 @@ export default function VehicleFormPage() {
             condutor: "",
             documento: "",
             telefone: "",
-            whatsapp: "",
+            email: "",
             profissao: "",
             tipoContrato: "mensalista",
             horaEntrada: "",
@@ -308,7 +308,8 @@ export default function VehicleFormPage() {
           normalizarTexto(item.modelo).includes(termoNormalizado) ||
           normalizarTexto(item.cor).includes(termoNormalizado) ||
           normalizarTexto(item.vaga).includes(termoNormalizado) ||
-          normalizarTexto(item.documento).includes(termoNormalizado)
+          normalizarTexto(item.documento).includes(termoNormalizado) ||
+          normalizarTexto(item.email).includes(termoNormalizado)
       );
     
       setResultados(filtrado);
@@ -322,7 +323,7 @@ export default function VehicleFormPage() {
       } else {
         // Se não encontrou resultados, mostrar alerta apenas quando acionado pelo botão
         if (fecharSidebar) {
-          alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento`);
+          alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento\n• E-mail`);
         }
       
         // Limpar formulário se estava editando, mas SEM limpar o campo de busca
@@ -340,7 +341,7 @@ export default function VehicleFormPage() {
             condutor: "",
             documento: "",
             telefone: "",
-            whatsapp: "",
+            email: "",
             profissao: "",
             tipoContrato: "mensalista",
             horaEntrada: "",
@@ -378,7 +379,7 @@ export default function VehicleFormPage() {
         condutor: "",
         documento: "",
         telefone: "",
-        whatsapp: "",
+        email: "",
         profissao: "",
         tipoContrato: "mensalista",
         horaEntrada: "",
@@ -464,7 +465,7 @@ export default function VehicleFormPage() {
           condutor: "",
           documento: "",
           telefone: "",
-          whatsapp: "",
+          email: "",
           profissao: "",
           tipoContrato: "mensalista",
           horaEntrada: "",
@@ -789,7 +790,7 @@ export default function VehicleFormPage() {
       condutor: "",
       documento: "",
       telefone: "",
-      whatsapp: "",
+      email: "",
       profissao: "",
       tipoContrato: "mensalista",
       horaEntrada: "",
@@ -839,7 +840,7 @@ export default function VehicleFormPage() {
 
     const cabecalho = [
       "Tipo", "Placa", "Modelo", "Cor", "Vaga", "Condutor", "Documento", 
-      "Telefone", "WhatsApp", "Profissão", "Tipo Contrato", 
+      "Telefone", "E-mail", "Profissão", "Tipo Contrato", 
       "Data Entrada", "Hora Entrada", "Duração (min)", "Tempo Decorrido", "Tempo Excedido"
     ].join(",");
 
@@ -852,7 +853,7 @@ export default function VehicleFormPage() {
       `"${v.condutor}"`,
       `"${v.documento}"`,
       `"${v.telefone}"`,
-      `"${v.whatsapp}"`,
+      `"${v.email}"`,
       `"${v.profissao}"`,
       `"${v.tipoContrato}"`,
       `"${v.dataEntrada}"`,
@@ -920,7 +921,7 @@ export default function VehicleFormPage() {
           condutor: "",
           documento: "",
           telefone: "",
-          whatsapp: "",
+          email: "",
           profissao: "",
           tipoContrato: "mensalista",
           horaEntrada: "",
@@ -1226,13 +1227,13 @@ export default function VehicleFormPage() {
               </label>
 
               <label>
-                WhatsApp:
+                E-mail:
                 <input
-                  type="tel"
-                  name="whatsapp"
-                  value={form.whatsapp}
+                  type="email"
+                  name="email"
+                  value={form.email}
                   onChange={handleChange}
-                  placeholder="(99) 9 9999-9999"
+                  placeholder="usuario@exemplo.com"
                 />
               </label>
             </div>
