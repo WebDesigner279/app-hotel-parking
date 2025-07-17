@@ -1298,9 +1298,24 @@
             font-size: 0.9rem !important;
             height: 44px !important;
             border-radius: 6px !important;
+            margin-top: 0.4rem !important;
+            border: 2px solid #e2e8f0 !important;
+            transition: all 0.3s ease !important;
+            background-color: white !important;
             -webkit-appearance: none;
             -moz-appearance: textfield;
             appearance: none;
+            
+            &:focus {
+              outline: none !important;
+              border-color: #667eea !important;
+              box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+              transform: translateY(-1px) !important;
+            }
+            
+            &:hover {
+              border-color: #cbd5e0 !important;
+            }
           }
 
           input[type="date"]::-webkit-calendar-picker-indicator,
@@ -1339,9 +1354,24 @@
         font-size: 0.9rem !important;
         height: 44px !important;
         border-radius: 6px !important;
+        margin-top: 0.4rem !important;
+        border: 2px solid #e2e8f0 !important;
+        transition: all 0.3s ease !important;
+        background-color: white !important;
         -webkit-appearance: none;
         -moz-appearance: textfield;
         appearance: none;
+        
+        &:focus {
+          outline: none !important;
+          border-color: #667eea !important;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+          transform: translateY(-1px) !important;
+        }
+        
+        &:hover {
+          border-color: #cbd5e0 !important;
+        }
       }
 
       input[type="date"]::-webkit-calendar-picker-indicator,
@@ -1614,9 +1644,24 @@
             font-size: 0.85rem !important;
             height: 42px !important;
             border-radius: 6px !important;
+            margin-top: 0.4rem !important;
+            border: 2px solid #e2e8f0 !important;
+            transition: all 0.3s ease !important;
+            background-color: white !important;
             -webkit-appearance: none;
             -moz-appearance: textfield;
             appearance: none;
+            
+            &:focus {
+              outline: none !important;
+              border-color: #667eea !important;
+              box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+              transform: translateY(-1px) !important;
+            }
+            
+            &:hover {
+              border-color: #cbd5e0 !important;
+            }
           }
 
           /* Garantir que o container do input também tenha largura total */
@@ -1919,13 +1964,28 @@
         box-sizing: border-box;
       }
       
-      /* Padronizar altura e border-radius dos inputs de date/time */
+      /* Padronizar altura, border-radius, espaçamento e cores dos inputs de date/time */
       input[type="date"], 
       input[type="time"] {
         height: 40px !important;
         border-radius: 6px !important;
         padding: 0 12px !important;
         font-size: 0.9rem !important;
+        margin-top: 0.4rem !important;
+        border: 2px solid #e2e8f0 !important;
+        transition: all 0.3s ease !important;
+        background-color: white !important;
+        
+        &:focus {
+          outline: none !important;
+          border-color: #667eea !important;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+          transform: translateY(-1px) !important;
+        }
+        
+        &:hover {
+          border-color: #cbd5e0 !important;
+        }
       }
     }
     
