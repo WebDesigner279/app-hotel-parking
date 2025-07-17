@@ -53,6 +53,7 @@ export default function VehicleFormPage() {
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState<VehicleData[]>([]);
   const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [editacaoManual, setEdicaoManual] = useState(false); // Distingue edição manual da busca automática
   const [tempoAtual, setTempoAtual] = useState(new Date());
   const [sidebarAberta, setSidebarAberta] = useState(false);
 
@@ -255,6 +256,7 @@ export default function VehicleFormPage() {
       fotoUrl: "",
     });
     setEditandoId(null);
+    setEdicaoManual(false);
     setPreviewFoto(null);
     
     // Limpar o input de arquivo
@@ -264,7 +266,13 @@ export default function VehicleFormPage() {
     }
   };
 
-  const realizarBusca = (termo: string, fecharSidebar: boolean = false) => {
+  const realizarBusca = (termo: string, fecharSidebar: boolean = false, carregarNoFormulario: boolean = false) => {
+    // Verificar se é mobile e se o termo está vazio quando acionado pelo botão
+    if (fecharSidebar && !termo.trim() && typeof window !== 'undefined' && window.innerWidth <= 768) {
+      alert("📝 Digite seu critério de busca\n\nVocê pode buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento\n• E-mail");
+      return;
+    }
+    
     const termoNormalizado = normalizarTexto(termo);
     
     // Carregar todos os dados do localStorage para buscar
@@ -314,42 +322,18 @@ export default function VehicleFormPage() {
     
       setResultados(filtrado);
     
-      // Se encontrou resultados, carregar o primeiro no formulário para edição
-      if (filtrado.length > 0) {
-        const primeiroResultado = filtrado[0];
-        setForm(primeiroResultado);
-        setPreviewFoto(primeiroResultado.fotoUrl);
-        setEditandoId(primeiroResultado.id);
-      } else {
-        // Se não encontrou resultados, mostrar alerta apenas quando acionado pelo botão
-        if (fecharSidebar) {
+      // Se deve carregar no formulário (botão de busca ou carregamento manual)
+      if (carregarNoFormulario) {
+        if (filtrado.length > 0) {
+          const primeiroResultado = filtrado[0];
+          setForm(primeiroResultado);
+          setPreviewFoto(primeiroResultado.fotoUrl);
+          setEditandoId(primeiroResultado.id);
+          // Se foi chamado pelo botão de busca (fecharSidebar=true), é edição manual
+          setEdicaoManual(fecharSidebar);
+        } else {
+          // Se não encontrou resultados, mostrar alerta
           alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento\n• E-mail`);
-        }
-      
-        // Limpar formulário se estava editando, mas SEM limpar o campo de busca
-        if (editandoId) {
-          setEditandoId(null);
-          setForm({
-            id: "",
-            tipo: "carro",
-            placa: "",
-            modelo: "",
-            marca: "",
-            ano: "",
-            cor: "",
-            vaga: "",
-            condutor: "",
-            documento: "",
-            telefone: "",
-            email: "",
-            profissao: "",
-            tipoContrato: "mensalista",
-            horaEntrada: "",
-            dataEntrada: "",
-            duracaoMinutos: 15,
-            fotoUrl: "",
-          });
-          setPreviewFoto(null);
         }
       }
     
@@ -367,6 +351,7 @@ export default function VehicleFormPage() {
     // Se estiver editando devido a uma busca, limpar o formulário também (mas sem recursão)
     if (editandoId) {
       setEditandoId(null);
+      setEdicaoManual(false);
       setForm({
         id: "",
         tipo: "carro",
@@ -402,7 +387,10 @@ export default function VehicleFormPage() {
     setBusca(novoTermo);
     
     // Realizar busca em tempo real
-    realizarBusca(novoTermo);
+    // No desktop (largura > 768px), carregar automaticamente no formulário
+    // No mobile, apenas filtrar
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
+    realizarBusca(novoTermo, false, isDesktop);
   };
 
   // Função para carregar um resultado específico no formulário
@@ -410,6 +398,12 @@ export default function VehicleFormPage() {
     setForm(resultado);
     setPreviewFoto(resultado.fotoUrl);
     setEditandoId(resultado.id);
+    setEdicaoManual(true); // Edição manual explícita
+    
+    // Fechar sidebar em mobile para visualizar o formulário
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      setSidebarAberta(false);
+    }
   };
 
   const handleEditar = (id: string) => {
@@ -418,6 +412,7 @@ export default function VehicleFormPage() {
       setForm(encontrado);
       setPreviewFoto(encontrado.fotoUrl);
       setEditandoId(id);
+      setEdicaoManual(true); // Edição manual explícita
     }
   };
 
@@ -453,6 +448,7 @@ export default function VehicleFormPage() {
       // Se está editando este item, cancelar a edição
       if (editandoId === id) {
         setEditandoId(null);
+        setEdicaoManual(false);
         setForm({
           id: "",
           tipo: "carro",
@@ -778,6 +774,7 @@ export default function VehicleFormPage() {
 
   const handleCancelarEdicao = () => {
     setEditandoId(null);
+    setEdicaoManual(false);
     setForm({
       id: "",
       tipo: "carro",
@@ -909,6 +906,7 @@ export default function VehicleFormPage() {
       // Se estiver editando, cancelar edição
       if (editandoId) {
         setEditandoId(null);
+        setEdicaoManual(false);
         setForm({
           id: "",
           tipo: "carro",
@@ -977,7 +975,7 @@ export default function VehicleFormPage() {
             />
             <button 
               className={styles.searchBtn} 
-              onClick={() => realizarBusca(busca, true)} 
+              onClick={() => realizarBusca(busca, true, true)} 
               title="Buscar"
             >
               🔍
@@ -1067,12 +1065,6 @@ export default function VehicleFormPage() {
           <h1 className={styles.title}>Cadastro de Veículo</h1>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        {editandoId && (
-          <div className={styles.editingIndicator}>
-            ✏️ Editando veículo - Placa: <strong>{form.placa}</strong> | Condutor: <strong>{form.condutor}</strong>
-          </div>
-        )}
-        
         <div className={styles.formRow}>
           <label>
             Tipo:
@@ -1267,7 +1259,7 @@ export default function VehicleFormPage() {
           <button type="submit" className={styles.submitButton}>
             {editandoId ? "Atualizar" : "Cadastrar"}
           </button>
-          {editandoId && (
+          {editandoId && editacaoManual && (
             <button 
               type="button" 
               className={styles.cancelButton}

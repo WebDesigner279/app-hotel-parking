@@ -534,19 +534,19 @@
 }
 
 .editingIndicator {
-  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-  border: 2px solid #667eea;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #e8f4fd 0%, #f0e6f7 100%);
+  border: 1px solid #667eea;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  margin-bottom: 1rem;
   color: #4a5568;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
   
   strong {
     color: #667eea;
-    font-weight: 700;
+    font-weight: 600;
   }
 }
 
@@ -2196,11 +2196,15 @@
   
   /* Indicador de edição mais compacto para desktop */
   .editingIndicator {
-    padding: 0.7rem 1.2rem;
-    margin-bottom: 1.2rem;
-    font-size: 0.85rem;
+    padding: 0.5rem 0.9rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.8rem;
     border-radius: 6px;
     text-align: left;
+    display: inline-block;
+    width: fit-content;
+    max-width: 350px;
+    min-width: 180px;
     
     strong {
       font-weight: 600;
