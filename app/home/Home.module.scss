@@ -9,9 +9,9 @@
   position: relative;
 }
 
-/* Toggle button para mobile - sempre visível */
+/* Toggle button para mobile - apenas visível em telas pequenas */
 .sidebarToggle {
-  display: none;
+  display: none; /* Oculto por padrão (desktop) */
   position: fixed;
   top: 5.5rem; /* Abaixo da navbar */
   left: 1rem;
@@ -27,19 +27,32 @@
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   transition: all 0.3s ease;
   
-  /* Garantir que sempre fique visível */
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-  pointer-events: auto !important;
+  /* Centralizar ícone React */
+  align-items: center;
+  justify-content: center;
+  
+  /* Estilo do ícone React */
+  svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s ease;
+  }
   
   &:hover {
-    transform: scale(1.1) !important;
+    transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    
+    svg {
+      transform: scale(1.1);
+    }
   }
   
   &:active {
-    transform: scale(0.95) !important;
+    transform: scale(0.95);
+    
+    svg {
+      transform: scale(0.9);
+    }
   }
   
   /* Efeito pulsante sutil */
@@ -56,16 +69,6 @@
     opacity: 0.2;
     animation: pulse-ring 3s infinite;
   }
-}
-
-/* Estados do botão toggle */
-.menu::before {
-  content: '☰';
-}
-
-.close::before {
-  content: '✕';
-  font-size: 1.1rem;
 }
 
 /* Animação de pulsação para o botão toggle */
@@ -1426,13 +1429,13 @@
   .sidebarToggle {
     width: 45px;
     height: 45px;
-    font-size: 1.1rem;
     top: 5rem; /* Ajuste para telas menores */
-  }
-  
-  /* Ajustar tamanho do ícone de fechar para telas pequenas */
-  .close::before {
-    font-size: 1rem !important;
+    
+    /* Ajustar ícone para telas pequenas */
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
   
   .sidebar {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { FaBars, FaTimes } from "react-icons/fa";
 import styles from "./Home.module.scss";
 
 type VehicleType = "carro" | "moto" | "caminhao";
@@ -272,9 +273,30 @@ export default function VehicleFormPage() {
     
       if (!termoNormalizado) {
         setResultados(todosOsDados);
-        // Limpar formulário se não há termo de busca
+        // Apenas limpar o formulário se não há termo de busca, mas SEM limpar o campo de busca
         if (editandoId) {
-          handleCancelarEdicao();
+          setEditandoId(null);
+          setForm({
+            id: "",
+            tipo: "carro",
+            placa: "",
+            modelo: "",
+            marca: "",
+            ano: "",
+            cor: "",
+            vaga: "",
+            condutor: "",
+            documento: "",
+            telefone: "",
+            whatsapp: "",
+            profissao: "",
+            tipoContrato: "mensalista",
+            horaEntrada: "",
+            dataEntrada: "",
+            duracaoMinutos: 15,
+            fotoUrl: "",
+          });
+          setPreviewFoto(null);
         }
         return;
       }
@@ -303,9 +325,30 @@ export default function VehicleFormPage() {
           alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento`);
         }
       
-        // Limpar formulário se estava editando
+        // Limpar formulário se estava editando, mas SEM limpar o campo de busca
         if (editandoId) {
-          handleCancelarEdicao();
+          setEditandoId(null);
+          setForm({
+            id: "",
+            tipo: "carro",
+            placa: "",
+            modelo: "",
+            marca: "",
+            ano: "",
+            cor: "",
+            vaga: "",
+            condutor: "",
+            documento: "",
+            telefone: "",
+            whatsapp: "",
+            profissao: "",
+            tipoContrato: "mensalista",
+            horaEntrada: "",
+            dataEntrada: "",
+            duracaoMinutos: 15,
+            fotoUrl: "",
+          });
+          setPreviewFoto(null);
         }
       }
     
@@ -320,9 +363,36 @@ export default function VehicleFormPage() {
     setBusca("");
     carregarDados();
     
-    // Se estiver editando devido a uma busca, limpar o formulário também
+    // Se estiver editando devido a uma busca, limpar o formulário também (mas sem recursão)
     if (editandoId) {
-      handleCancelarEdicao();
+      setEditandoId(null);
+      setForm({
+        id: "",
+        tipo: "carro",
+        placa: "",
+        modelo: "",
+        marca: "",
+        ano: "",
+        cor: "",
+        vaga: "",
+        condutor: "",
+        documento: "",
+        telefone: "",
+        whatsapp: "",
+        profissao: "",
+        tipoContrato: "mensalista",
+        horaEntrada: "",
+        dataEntrada: "",
+        duracaoMinutos: 15,
+        fotoUrl: "",
+      });
+      setPreviewFoto(null);
+      
+      // Limpar o input de arquivo
+      const inputFile = document.getElementById('foto-input') as HTMLInputElement;
+      if (inputFile) {
+        inputFile.value = '';
+      }
     }
   };
 
@@ -875,10 +945,11 @@ export default function VehicleFormPage() {
     <div className={styles.appLayout}>
       {/* Botão toggle para mobile - sempre visível */}
       <button 
-        className={`${styles.sidebarToggle} ${sidebarAberta ? styles.close : styles.menu}`}
+        className={styles.sidebarToggle}
         onClick={toggleSidebar}
         aria-label={sidebarAberta ? "Fechar menu" : "Abrir menu"}
       >
+        {sidebarAberta ? <FaTimes /> : <FaBars />}
       </button>
 
       {/* Overlay para fechar sidebar no mobile */}
