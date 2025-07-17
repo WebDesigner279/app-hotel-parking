@@ -1284,6 +1284,26 @@
             padding: 0 10px !important;
             height: 44px !important;
           }
+
+          /* Estilos específicos para inputs de data e hora em tablets */
+          input[type="date"], input[type="time"] {
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            padding: 0 10px !important;
+            font-size: 0.9rem !important;
+            height: 44px !important;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: none;
+          }
+
+          input[type="date"]::-webkit-calendar-picker-indicator,
+          input[type="time"]::-webkit-calendar-picker-indicator {
+            opacity: 1;
+            cursor: pointer;
+          }
         }
       }
     }
@@ -1303,6 +1323,26 @@
         font-size: 0.9rem;
         padding: 0 10px;
         height: 44px;
+      }
+
+      /* Estilos específicos para inputs de data e hora em tablets */
+      input[type="date"], input[type="time"] {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 10px !important;
+        font-size: 0.9rem !important;
+        height: 44px !important;
+        -webkit-appearance: none;
+        -moz-appearance: textfield;
+        appearance: none;
+      }
+
+      input[type="date"]::-webkit-calendar-picker-indicator,
+      input[type="time"]::-webkit-calendar-picker-indicator {
+        opacity: 1;
+        cursor: pointer;
       }
     }
 
@@ -1550,17 +1590,36 @@
 
     .formRow {
       grid-template-columns: 1fr;
-      gap: 0.8rem;
-
-      label {
-        font-size: 0.85rem;
-
-        input, select {
-          padding: 0 8px;
+      gap: 0.8rem;        label {
           font-size: 0.85rem;
-          height: 42px;
+
+          input, select {
+            padding: 0 8px;
+            font-size: 0.85rem;
+            height: 42px;
+          }
+
+          /* Estilos específicos para inputs de data e hora no mobile */
+          input[type="date"], input[type="time"] {
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            padding: 0 8px !important;
+            font-size: 0.85rem !important;
+            height: 42px !important;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: none;
+          }
+
+          /* Garantir que o container do input também tenha largura total */
+          input[type="date"]::-webkit-calendar-picker-indicator,
+          input[type="time"]::-webkit-calendar-picker-indicator {
+            opacity: 1;
+            cursor: pointer;
+          }
         }
-      }
     }
   }
 
