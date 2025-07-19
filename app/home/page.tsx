@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FaBars, FaTimes } from "react-icons/fa";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { FaBars, FaTimes, FaHome, FaInfoCircle, FaEnvelope } from "react-icons/fa";
 import styles from "./Home.module.scss";
 
 type VehicleType = "carro" | "moto" | "caminhao";
@@ -31,6 +33,7 @@ interface VehicleData {
 }
 
 export default function VehicleFormPage() {
+  const pathname = usePathname();
   const [form, setForm] = useState<VehicleData>({
     id: "",
     tipo: "carro",
@@ -1171,6 +1174,37 @@ export default function VehicleFormPage() {
       <aside className={`${styles.sidebar} ${sidebarAberta ? styles.open : ''}`}>
         <div className={styles.sidebarHeader}>
           <h2 className={styles.sidebarTitle}>🚗 Hotel Parking</h2>
+        </div>
+
+        {/* Seção de navegação */}
+        <div className={styles.navigationSection}>
+          <h3 className={styles.sectionTitle}>Navegação</h3>
+          <nav className={styles.navList}>
+            <Link 
+              href="/home" 
+              className={`${styles.navLink} ${pathname === "/home" ? styles.activeNav : ""}`}
+              onClick={fecharSidebar}
+            >
+              <FaHome className={styles.navIcon} />
+              <span>Início</span>
+            </Link>
+            <Link 
+              href="/sobre" 
+              className={`${styles.navLink} ${pathname === "/sobre" ? styles.activeNav : ""}`}
+              onClick={fecharSidebar}
+            >
+              <FaInfoCircle className={styles.navIcon} />
+              <span>Sobre</span>
+            </Link>
+            <Link 
+              href="/contato" 
+              className={`${styles.navLink} ${pathname === "/contato" ? styles.activeNav : ""}`}
+              onClick={fecharSidebar}
+            >
+              <FaEnvelope className={styles.navIcon} />
+              <span>Contato</span>
+            </Link>
+          </nav>
         </div>
 
         {/* Seção de busca */}

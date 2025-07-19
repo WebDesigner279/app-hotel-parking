@@ -13,8 +13,8 @@
 .sidebarToggle {
   display: none; /* Oculto por padrão (desktop) */
   position: fixed;
-  top: 5.5rem; /* Abaixo da navbar */
-  left: 1rem;
+  top: 1rem; /* Alinhado com o botão de navegação global */
+  right: 1rem; /* Posicionado à direita para não conflitar */
   z-index: 500; /* Menor que a navbar mas maior que o sidebar */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -174,6 +174,51 @@
     color: rgba(255, 255, 255, 0.9);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+  }
+}
+
+/* Seção de navegação na sidebar */
+.navigationSection {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1.5rem;
+
+  .navList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .navLink {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border-left: 3px solid transparent;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-left-color: rgba(255, 255, 255, 0.5);
+      transform: translateX(3px);
+    }
+    
+    &.activeNav {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border-left-color: #ffffff;
+      font-weight: 600;
+    }
+  }
+
+  .navIcon {
+    font-size: 1rem;
+    min-width: 16px;
   }
 }
 
