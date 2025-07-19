@@ -20,6 +20,9 @@ interface VehicleData {
   telefone: string;
   email: string;
   profissao: string;
+  tipoImovel: string;
+  numeroImovel: string;
+  blocoLocal: string;
   tipoContrato: string;
   horaEntrada: string;
   dataEntrada: string;
@@ -42,6 +45,9 @@ export default function VehicleFormPage() {
     telefone: "",
     email: "",
     profissao: "",
+    tipoImovel: "apartamento",
+    numeroImovel: "",
+    blocoLocal: "",
     tipoContrato: "mensalista",
     horaEntrada: "",
     dataEntrada: "",
@@ -164,7 +170,7 @@ export default function VehicleFormPage() {
     
     // Aplicar capitalização automática para campos específicos
     let valorFormatado = value;
-    if (name === 'condutor' || name === 'cor' || name === 'modelo' || name === 'profissao') {
+    if (name === 'condutor' || name === 'cor' || name === 'modelo' || name === 'profissao' || name === 'blocoLocal') {
       valorFormatado = capitalizarTexto(value);
     }
     
@@ -254,6 +260,9 @@ export default function VehicleFormPage() {
       dataEntrada: "",
       duracaoMinutos: 15,
       fotoUrl: "",
+      tipoImovel: "apartamento",
+      numeroImovel: "",
+      blocoLocal: "",
     });
     setEditandoId(null);
     setEdicaoManual(false);
@@ -269,7 +278,7 @@ export default function VehicleFormPage() {
   const realizarBusca = (termo: string, fecharSidebar: boolean = false, carregarNoFormulario: boolean = false) => {
     // Verificar se é mobile e se o termo está vazio quando acionado pelo botão
     if (fecharSidebar && !termo.trim() && typeof window !== 'undefined' && window.innerWidth <= 768) {
-      alert("📝 Digite seu critério de busca\n\nVocê pode buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento\n• E-mail");
+      alert("📝 Digite seu critério de busca\n\nVocê pode buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento\n• E-mail\n• Profissão\n• Tipo de Imóvel\n• Número do Imóvel\n• Bloco/Local");
       return;
     }
     
@@ -280,10 +289,12 @@ export default function VehicleFormPage() {
       const todosOsDados = JSON.parse(localStorage.getItem("veiculos") || "[]");
     
       if (!termoNormalizado) {
+        // Se não há termo de busca, mostrar todos os dados
         setResultados(todosOsDados);
-        // Apenas limpar o formulário se não há termo de busca, mas SEM limpar o campo de busca
+        // Apenas limpar o formulário se estava editando
         if (editandoId) {
           setEditandoId(null);
+          setEdicaoManual(false);
           setForm({
             id: "",
             tipo: "carro",
@@ -303,6 +314,9 @@ export default function VehicleFormPage() {
             dataEntrada: "",
             duracaoMinutos: 15,
             fotoUrl: "",
+            tipoImovel: "apartamento",
+            numeroImovel: "",
+            blocoLocal: "",
           });
           setPreviewFoto(null);
         }
@@ -314,15 +328,23 @@ export default function VehicleFormPage() {
           normalizarTexto(item.condutor).includes(termoNormalizado) ||
           normalizarTexto(item.placa.replace('-', '')).includes(termoNormalizado.replace('-', '')) ||
           normalizarTexto(item.modelo).includes(termoNormalizado) ||
+          normalizarTexto(item.marca).includes(termoNormalizado) ||
           normalizarTexto(item.cor).includes(termoNormalizado) ||
           normalizarTexto(item.vaga).includes(termoNormalizado) ||
           normalizarTexto(item.documento).includes(termoNormalizado) ||
-          normalizarTexto(item.email).includes(termoNormalizado)
+          normalizarTexto(item.telefone).includes(termoNormalizado) ||
+          normalizarTexto(item.email).includes(termoNormalizado) ||
+          normalizarTexto(item.profissao).includes(termoNormalizado) ||
+          normalizarTexto(item.tipoImovel).includes(termoNormalizado) ||
+          normalizarTexto(item.numeroImovel).includes(termoNormalizado) ||
+          normalizarTexto(item.blocoLocal).includes(termoNormalizado) ||
+          normalizarTexto(item.ano).includes(termoNormalizado)
       );
     
+      // Sempre atualizar a tabela com os resultados filtrados
       setResultados(filtrado);
     
-      // Se deve carregar no formulário (botão de busca ou carregamento manual)
+      // Se deve carregar no formulário (botão de busca ou carregamento automático no desktop)
       if (carregarNoFormulario) {
         if (filtrado.length > 0) {
           const primeiroResultado = filtrado[0];
@@ -332,8 +354,39 @@ export default function VehicleFormPage() {
           // Se foi chamado pelo botão de busca (fecharSidebar=true), é edição manual
           setEdicaoManual(fecharSidebar);
         } else {
-          // Se não encontrou resultados, mostrar alerta
-          alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento\n• E-mail`);
+          // Se não encontrou resultados, mostrar alerta apenas quando acionado pelo botão
+          if (fecharSidebar) {
+            alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Marca do veículo\n• Cor\n• Número da vaga\n• Documento\n• Telefone\n• E-mail\n• Profissão\n• Ano\n• Tipo de Imóvel\n• Número do Imóvel\n• Bloco/Local`);
+          }
+          // Limpar formulário se não há resultados e estava carregando automaticamente
+          if (!fecharSidebar && editandoId) {
+            setEditandoId(null);
+            setEdicaoManual(false);
+            setForm({
+              id: "",
+              tipo: "carro",
+              placa: "",
+              modelo: "",
+              marca: "",
+              ano: "",
+              cor: "",
+              vaga: "",
+              condutor: "",
+              documento: "",
+              telefone: "",
+              email: "",
+              profissao: "",
+              tipoContrato: "mensalista",
+              horaEntrada: "",
+              dataEntrada: "",
+              duracaoMinutos: 15,
+              fotoUrl: "",
+              tipoImovel: "apartamento",
+              numeroImovel: "",
+              blocoLocal: "",
+            });
+            setPreviewFoto(null);
+          }
         }
       }
     
@@ -371,6 +424,9 @@ export default function VehicleFormPage() {
         dataEntrada: "",
         duracaoMinutos: 15,
         fotoUrl: "",
+        tipoImovel: "apartamento",
+        numeroImovel: "",
+        blocoLocal: "",
       });
       setPreviewFoto(null);
       
@@ -468,6 +524,9 @@ export default function VehicleFormPage() {
           dataEntrada: "",
           duracaoMinutos: 15,
           fotoUrl: "",
+          tipoImovel: "apartamento",
+          numeroImovel: "",
+          blocoLocal: "",
         });
         setPreviewFoto(null);
         
@@ -507,6 +566,7 @@ export default function VehicleFormPage() {
 
   // Função para normalizar texto (remover acentos e converter para minúsculo)
   const normalizarTexto = (texto: string) => {
+    if (!texto) return "";
     return texto
       .toLowerCase()
       .normalize("NFD")
@@ -794,6 +854,9 @@ export default function VehicleFormPage() {
       dataEntrada: "",
       duracaoMinutos: 15,
       fotoUrl: "",
+      tipoImovel: "apartamento",
+      numeroImovel: "",
+      blocoLocal: "",
     });
     setPreviewFoto(null);
     setBusca("");
@@ -837,7 +900,7 @@ export default function VehicleFormPage() {
 
     const cabecalho = [
       "Tipo", "Placa", "Modelo", "Cor", "Vaga", "Condutor", "Documento", 
-      "Telefone", "E-mail", "Profissão", "Tipo Contrato", 
+      "Telefone", "E-mail", "Profissão", "Tipo Contrato",
       "Data Entrada", "Hora Entrada", "Duração (min)", "Tempo Decorrido", "Tempo Excedido"
     ].join(",");
 
@@ -926,6 +989,9 @@ export default function VehicleFormPage() {
           dataEntrada: "",
           duracaoMinutos: 15,
           fotoUrl: "",
+          tipoImovel: "apartamento",
+          numeroImovel: "",
+          blocoLocal: "",
         });
         setPreviewFoto(null);
       }
@@ -1252,6 +1318,39 @@ export default function VehicleFormPage() {
                 </select>
               </label>
             </div>
+
+            <div className={styles.formRow}>
+              <label>
+                Tipo de Imóvel:
+                <select name="tipoImovel" value={form.tipoImovel} onChange={handleChange}>
+                  <option value="apartamento">Apartamento</option>
+                  <option value="casa">Casa</option>
+                  <option value="quarto">Quarto</option>
+                </select>
+              </label>
+
+              <label>
+                Nº Imóvel:
+                <input
+                  type="text"
+                  name="numeroImovel"
+                  value={form.numeroImovel}
+                  onChange={handleChange}
+                  placeholder="Ex: 101, 201A, 15"
+                />
+              </label>
+
+              <label>
+                Bloco/Local:
+                <input
+                  type="text"
+                  name="blocoLocal"
+                  value={form.blocoLocal}
+                  onChange={handleChange}
+                  placeholder="Ex: Bloco A, Torre 1"
+                />
+              </label>
+            </div>
           </div>
         </div>
 
@@ -1276,8 +1375,8 @@ export default function VehicleFormPage() {
           <thead>
             <tr>
               <th>Foto</th>
-              <th>Tipo</th>
               <th>Condutor</th>
+              <th>Tipo</th>
               <th>Placa</th>
               <th>Modelo</th>
               <th>Cor</th>
@@ -1296,8 +1395,8 @@ export default function VehicleFormPage() {
                 <td>
                   {v.fotoUrl && <img src={v.fotoUrl} alt="Foto" className={styles.fotoMini} />}
                 </td>
-                <td>{v.tipo.charAt(0).toUpperCase() + v.tipo.slice(1)}</td>
                 <td>{v.condutor}</td>
+                <td>{v.tipo.charAt(0).toUpperCase() + v.tipo.slice(1)}</td>
                 <td className={styles.placaCell}>{exibirPlacaFormatada(v.placa)}</td>
                 <td>{v.modelo}</td>
                 <td>{v.cor}</td>
