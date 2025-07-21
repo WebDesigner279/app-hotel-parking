@@ -1312,6 +1312,9 @@
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 1rem !important;
+    border-top: none !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 
     .fotoPreview {
       align-self: center !important;
@@ -1437,27 +1440,51 @@
 
   /* Responsividade específica para duração e botão agora */
   .duracaoAgoraWrapper {
-    flex-direction: column !important;
-    gap: 1rem !important;
-    align-items: stretch !important;
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    align-items: flex-start !important;
     margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    overflow-x: auto !important;
+
+    > label {
+      flex: 1 !important;
+      min-width: 120px !important;
+      
+      input[type="time"],
+      input[type="date"] {
+        height: 44px !important;
+        font-size: 0.9rem !important;
+        padding: 0 8px !important;
+      }
+    }
 
     .duracaoLabel {
-      width: 100% !important;
+      flex: 1.2 !important;
+      min-width: 140px !important;
 
       select {
         height: 44px !important;
         font-size: 0.9rem !important;
-        padding: 0 10px !important;
+        padding: 0 8px !important;
       }
     }
 
     .agoraButton {
-      width: 100% !important;
       height: 44px !important;
-      min-width: auto !important;
-      font-size: 0.9rem !important;
-      margin-bottom: 0 !important;
+      min-width: 80px !important;
+      font-size: 0.8rem !important;
+      margin-top: calc(1em + 0.4rem) !important;
+      margin-left: 0 !important;
+      margin-bottom: 0.8rem !important;
+      padding: 0 0.5rem !important;
+      border: none !important;
+      box-shadow: none !important;
+      position: relative !important;
+      z-index: 10 !important;
     }
   }
   
@@ -1487,17 +1514,26 @@
 
     .duracaoAgoraWrapper {
       flex-direction: row;
-      gap: 0.8rem;
-      align-items: flex-end;
+      gap: 1rem;
+      align-items: flex-start;
+      
+      > label {
+        flex: 1;
+        min-width: 120px;
+      }
       
       .duracaoLabel {
-        flex: 1;
+        flex: 1.5;
+        margin-right: 0.5rem;
       }
 
       .agoraButton {
         min-width: 100px;
         width: auto;
         height: 40px;
+        margin-top: calc(1em + 0.4rem);
+        margin-left: 0;
+        margin-bottom: 0.3rem;
       }
     }
   }
@@ -1939,16 +1975,45 @@
 .duracaoAgoraWrapper {
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
-  gap: 0.8rem;
+  align-items: flex-start;
+  gap: 1rem;
   margin-top: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  
+  > label {
+    flex: 1;
+    min-width: 140px;
+    
+    input[type="time"],
+    input[type="date"] {
+      height: 40px;
+      box-sizing: border-box;
+      margin-top: 0.4rem;
+      border-radius: 6px;
+      border: 2px solid #e2e8f0;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      background-color: white;
+      padding: 0 10px;
+      
+      &:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+    }
+  }
 }
 
 .duracaoLabel {
-  flex: 1;
+  flex: 2;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  min-width: 200px;
+  margin-right: 0.5rem;
 }
 
 .duracaoLabel select {
@@ -1960,6 +2025,22 @@
   font-size: 0.9rem;
   transition: all 0.3s ease;
   background-color: white;
+  padding: 0 10px;
+  
+  &:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+}
+
+.duracaoHint {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.2;
+  font-style: italic;
 }
 
 .agoraButton {
@@ -1977,8 +2058,11 @@
   justify-content: center;
   padding: 0 1rem;
   transition: all 0.3s ease;
-  margin-bottom: 0;
+  margin-top: calc(1em + 0.4rem);
+  margin-left: 0;
+  margin-bottom: 0.3rem;
   flex-shrink: 0;
+  align-self: flex-start;
   
   &:hover {
     transform: translateY(-1px);
@@ -2085,8 +2169,8 @@
   .duracaoAgoraWrapper {
     display: flex;
     flex-direction: row;
-    align-items: flex-end;
-    gap: 0.8rem;
+    align-items: flex-start;
+    gap: 1rem;
     margin-top: 0;
     background: rgba(102, 126, 234, 0.03);
     padding: 1.2rem;
@@ -2109,7 +2193,8 @@
       }
       
       &.duracaoLabel { /* Duração */
-        width: 170px;
+        width: 220px;
+        margin-right: 1rem;
       }
       
       input, select {
@@ -2144,12 +2229,14 @@
     
     .agoraButton {
       flex: none;
-      min-width: 85px;
+      min-width: 95px;
       width: auto;
       height: 36px;
-      margin-bottom: 0;
+      margin-top: calc(0.82rem + 0.25rem);
+      margin-left: 0;
+      margin-bottom: 0.3rem;
       font-size: 0.75rem;
-      padding: 0 10px;
+      padding: 0 12px;
       border-radius: 5px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border: none;
@@ -2162,6 +2249,14 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
       }
+    }
+    
+    .duracaoHint {
+      margin-top: 0.3rem;
+      font-size: 0.7rem;
+      color: #6b7280;
+      line-height: 1.2;
+      font-style: italic;
     }
   }
   

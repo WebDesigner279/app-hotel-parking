@@ -48,7 +48,7 @@ export default function VehicleFormPage() {
     telefone: "",
     email: "",
     profissao: "",
-    tipoImovel: "apartamento",
+    tipoImovel: "nenhum",
     numeroImovel: "",
     blocoLocal: "",
     tipoContrato: "mensalista",
@@ -86,6 +86,40 @@ export default function VehicleFormPage() {
     };
   }, []);
 
+  // UseEffect para ajustar duração automaticamente baseado no tipo de contrato
+  useEffect(() => {
+    // Sugerir duração padrão baseada no tipo de contrato
+    let duracaoSugerida = form.duracaoMinutos;
+    
+    switch (form.tipoContrato) {
+      case "mensalista":
+        duracaoSugerida = 43200; // 30 dias
+        break;
+      case "diaria":
+        duracaoSugerida = 1440; // 24 horas
+        break;
+      case "por_hora":
+        duracaoSugerida = 60; // 1 hora
+        break;
+      case "minutos":
+        duracaoSugerida = 30; // 30 minutos
+        break;
+    }
+    
+    // Atualizar apenas se a duração atual não faz sentido para o tipo de contrato
+    if (
+      (form.tipoContrato === "mensalista" && form.duracaoMinutos < 1440) ||
+      (form.tipoContrato === "diaria" && (form.duracaoMinutos < 480 || form.duracaoMinutos > 43200)) ||
+      (form.tipoContrato === "por_hora" && form.duracaoMinutos > 720) ||
+      (form.tipoContrato === "minutos" && form.duracaoMinutos > 240)
+    ) {
+      setForm(prev => ({
+        ...prev,
+        duracaoMinutos: duracaoSugerida
+      }));
+    }
+  }, [form.tipoContrato]);
+
   // UseEffect para fechar sidebar automaticamente ao rolar (exceto dentro do sidebar)
   useEffect(() => {
     const handlePageScroll = () => {
@@ -121,11 +155,13 @@ export default function VehicleFormPage() {
       if (sidebarAberta && window.innerWidth <= 768) {
         const sidebarElement = document.querySelector(`.${styles.sidebar}`);
         const toggleElement = document.querySelector(`.${styles.sidebarToggle}`);
+        const limparBtnElement = document.querySelector(`.${styles.limparBtn}`);
         
-        // Verificar se o clique foi dentro do sidebar ou no toggle
+        // Verificar se o clique foi dentro do sidebar, no toggle ou no botão limpar busca
         if (sidebarElement && toggleElement && 
             !sidebarElement.contains(event.target as Node) && 
-            !toggleElement.contains(event.target as Node)) {
+            !toggleElement.contains(event.target as Node) &&
+            !(limparBtnElement && limparBtnElement.contains(event.target as Node))) {
           setSidebarAberta(false);
         }
       }
@@ -406,7 +442,7 @@ export default function VehicleFormPage() {
       dataEntrada: "",
       duracaoMinutos: 15,
       fotoUrl: "",
-      tipoImovel: "apartamento",
+      tipoImovel: "nenhum",
       numeroImovel: "",
       blocoLocal: "",
     });
@@ -460,7 +496,7 @@ export default function VehicleFormPage() {
             dataEntrada: "",
             duracaoMinutos: 15,
             fotoUrl: "",
-            tipoImovel: "apartamento",
+            tipoImovel: "nenhum",
             numeroImovel: "",
             blocoLocal: "",
           });
@@ -527,7 +563,7 @@ export default function VehicleFormPage() {
               dataEntrada: "",
               duracaoMinutos: 15,
               fotoUrl: "",
-              tipoImovel: "apartamento",
+              tipoImovel: "nenhum",
               numeroImovel: "",
               blocoLocal: "",
             });
@@ -570,7 +606,7 @@ export default function VehicleFormPage() {
         dataEntrada: "",
         duracaoMinutos: 15,
         fotoUrl: "",
-        tipoImovel: "apartamento",
+        tipoImovel: "nenhum",
         numeroImovel: "",
         blocoLocal: "",
       });
@@ -581,6 +617,12 @@ export default function VehicleFormPage() {
       if (inputFile) {
         inputFile.value = '';
       }
+    }
+
+    // Garantir que o sidebar permaneça aberto após limpar a busca
+    // Especialmente útil em dispositivos mobile onde o sidebar pode ter sido fechado durante a busca
+    if (typeof window !== 'undefined' && window.innerWidth <= 768 && !sidebarAberta) {
+      setSidebarAberta(true);
     }
   };
 
@@ -670,7 +712,7 @@ export default function VehicleFormPage() {
           dataEntrada: "",
           duracaoMinutos: 15,
           fotoUrl: "",
-          tipoImovel: "apartamento",
+          tipoImovel: "nenhum",
           numeroImovel: "",
           blocoLocal: "",
         });
@@ -822,7 +864,7 @@ export default function VehicleFormPage() {
   };
 
   // Função para calcular o tempo excedido
-  const calcularTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number) => {
+  const calcularTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number, tipoContrato: string = "mensalista") => {
     if (!dataEntrada || !horaEntrada) return "0 min";
 
     const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
@@ -831,29 +873,20 @@ export default function VehicleFormPage() {
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
     
-    // Se a entrada é futura, não há tempo excedido
+    // Se a entrada é futura, não há tempo excedido ainda
     if (diferencaMinutos < 0) {
-      return "Entrada futura";
+      return "Aguardando início";
     }
     
+    // Calcular tempo excedido baseado SEMPRE na duração específica escolhida
     const tempoExcedido = diferencaMinutos - duracaoMinutos;
     
+    // Se ainda não excedeu o tempo permitido
     if (tempoExcedido <= 0) {
-      return "0 min";
+      return "Dentro do prazo";
     }
     
-    // Para durações mensais (30 dias), mostrar em dias se excedeu
-    if (duracaoMinutos === 43200 && tempoExcedido >= 1440) {
-      const diasExcedidos = Math.floor(tempoExcedido / 1440);
-      const horasRestantes = Math.floor((tempoExcedido % 1440) / 60);
-      if (horasRestantes > 0) {
-        return `${diasExcedidos}d ${horasRestantes}h`;
-      } else {
-        return `${diasExcedidos} dia${diasExcedidos > 1 ? 's' : ''}`;
-      }
-    }
-    
-    // Para outras durações, mostrar normalmente
+    // Formatação baseada na magnitude do tempo excedido
     if (tempoExcedido < 60) {
       return `${tempoExcedido} min`;
     } else if (tempoExcedido < 1440) {
@@ -889,7 +922,7 @@ export default function VehicleFormPage() {
   };
 
   // Função para obter a classe CSS baseada no tempo excedido
-  const obterClasseTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number) => {
+  const obterClasseTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number, tipoContrato: string = "mensalista") => {
     if (!dataEntrada || !horaEntrada) return styles.tempoExcedido;
 
     const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
@@ -899,39 +932,64 @@ export default function VehicleFormPage() {
     
     // Se a entrada é futura, usar classe especial
     if (diferencaMinutos < 0) {
-      return styles.tempoFuturo || styles.tempoExcedido;
+      return styles.tempoFuturo || styles.tempoNormal;
     }
     
+    // Calcular tempo excedido sempre baseado na duração específica
     const tempoExcedido = diferencaMinutos - duracaoMinutos;
     
+    // Se ainda não excedeu o tempo permitido
     if (tempoExcedido <= 0) {
       return styles.tempoNormal;
     }
     
-    // Para durações mensais, usar tolerâncias em dias
-    if (duracaoMinutos === 43200) {
-      const diasExcedidos = Math.floor(tempoExcedido / 1440);
-      if (diasExcedidos <= 1) {
-        return styles.tempoExcedidoLeve;
-      } else if (diasExcedidos <= 3) {
-        return styles.tempoExcedidoMedio;
-      } else {
-        return styles.tempoExcedidoGrave;
-      }
+    // Definir tolerâncias baseadas na duração específica
+    let toleranciaLeve, toleranciaMedio;
+    
+    if (duracaoMinutos <= 60) {
+      // Para durações de até 1 hora: tolerância menor
+      toleranciaLeve = Math.floor(duracaoMinutos * 0.25); // 25% da duração
+      toleranciaMedio = Math.floor(duracaoMinutos * 0.5); // 50% da duração
+    } else if (duracaoMinutos <= 1440) {
+      // Para durações de até 1 dia: tolerância em horas
+      toleranciaLeve = 60; // 1 hora
+      toleranciaMedio = 180; // 3 horas
+    } else {
+      // Para durações maiores (mensais): tolerância em dias
+      toleranciaLeve = 1440; // 1 dia
+      toleranciaMedio = 4320; // 3 dias
     }
     
-    // Para outras durações, usar tolerâncias em minutos/horas
-    if (tempoExcedido <= 30) {
+    if (tempoExcedido <= toleranciaLeve) {
       return styles.tempoExcedidoLeve;
-    } else if (tempoExcedido <= 60) {
+    } else if (tempoExcedido <= toleranciaMedio) {
       return styles.tempoExcedidoMedio;
     } else {
       return styles.tempoExcedidoGrave;
     }
   };
 
+  // Função para calcular o tempo permitido (duração formatada)
+  const calcularTempoPermitido = (duracaoMinutos: number) => {
+    if (duracaoMinutos < 60) {
+      return `${duracaoMinutos} min`;
+    } else if (duracaoMinutos < 1440) {
+      const horas = Math.floor(duracaoMinutos / 60);
+      const minutos = duracaoMinutos % 60;
+      return minutos > 0 ? `${horas}h ${minutos}min` : `${horas}h`;
+    } else {
+      const dias = Math.floor(duracaoMinutos / 1440);
+      const horas = Math.floor((duracaoMinutos % 1440) / 60);
+      if (horas > 0) {
+        return `${dias}d ${horas}h`;
+      } else {
+        return `${dias} dia${dias > 1 ? 's' : ''}`;
+      }
+    }
+  };
+
   // Função para calcular o tempo decorrido total
-  const calcularTempoDecorrido = (dataEntrada: string, horaEntrada: string) => {
+  const calcularTempoDecorrido = (dataEntrada: string, horaEntrada: string, tipoContrato: string = "mensalista") => {
     if (!dataEntrada || !horaEntrada) return "0 min";
 
     const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
@@ -940,27 +998,27 @@ export default function VehicleFormPage() {
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
     
-    // Se o tempo é negativo (entrada futura), mostrar "Futuro"
+    // Se o tempo é negativo (entrada futura), mostrar tempo restante até o início
     if (diferencaMinutos < 0) {
-      const minutosPositivos = Math.abs(diferencaMinutos);
-      if (minutosPositivos < 60) {
-        return `Futuro (${minutosPositivos} min)`;
-      } else if (minutosPositivos < 1440) {
-        const horas = Math.floor(minutosPositivos / 60);
-        const minutos = minutosPositivos % 60;
-        return minutos > 0 ? `Futuro (${horas}h ${minutos}min)` : `Futuro (${horas}h)`;
+      const minutosRestantes = Math.abs(diferencaMinutos);
+      if (minutosRestantes < 60) {
+        return `Inicia em ${minutosRestantes} min`;
+      } else if (minutosRestantes < 1440) {
+        const horas = Math.floor(minutosRestantes / 60);
+        const minutos = minutosRestantes % 60;
+        return minutos > 0 ? `Inicia em ${horas}h ${minutos}min` : `Inicia em ${horas}h`;
       } else {
-        const dias = Math.floor(minutosPositivos / 1440);
-        const horas = Math.floor((minutosPositivos % 1440) / 60);
+        const dias = Math.floor(minutosRestantes / 1440);
+        const horas = Math.floor((minutosRestantes % 1440) / 60);
         if (horas > 0) {
-          return `Futuro (${dias}d ${horas}h)`;
+          return `Inicia em ${dias}d ${horas}h`;
         } else {
-          return `Futuro (${dias} dia${dias > 1 ? 's' : ''})`;
+          return `Inicia em ${dias} dia${dias > 1 ? 's' : ''}`;
         }
       }
     }
     
-    // Tempo normal (passado)
+    // Tempo normal (passado) - formatação simples baseada na magnitude
     if (diferencaMinutos < 60) {
       return `${diferencaMinutos} min`;
     } else if (diferencaMinutos < 1440) {
@@ -1000,7 +1058,7 @@ export default function VehicleFormPage() {
       dataEntrada: "",
       duracaoMinutos: 15,
       fotoUrl: "",
-      tipoImovel: "apartamento",
+      tipoImovel: "nenhum",
       numeroImovel: "",
       blocoLocal: "",
     });
@@ -1048,7 +1106,7 @@ export default function VehicleFormPage() {
     const cabecalho = [
       "Tipo", "Placa", "Modelo", "Cor", "Vaga", "Condutor", "Documento", 
       "Telefone", "E-mail", "Profissão", "Tipo Contrato",
-      "Data Entrada", "Hora Entrada", "Duração (min)", "Tempo Decorrido", "Tempo Excedido"
+      "Data Entrada", "Hora Entrada", "Tempo Permitido", "Tempo Decorrido", "Tempo Excedido"
     ].join(",");
 
     const linhas = resultados.map(v => [
@@ -1065,9 +1123,9 @@ export default function VehicleFormPage() {
       `"${v.tipoContrato}"`,
       `"${v.dataEntrada}"`,
       `"${v.horaEntrada}"`,
-      v.duracaoMinutos,
-      `"${calcularTempoDecorrido(v.dataEntrada, v.horaEntrada)}"`,
-      `"${calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos)}"`
+      `"${calcularTempoPermitido(v.duracaoMinutos)}"`,
+      `"${calcularTempoDecorrido(v.dataEntrada, v.horaEntrada, v.tipoContrato)}"`,
+      `"${calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)}"`
     ].join(","));
 
     const csvContent = [cabecalho, ...linhas].join("\\n");
@@ -1136,7 +1194,7 @@ export default function VehicleFormPage() {
           dataEntrada: "",
           duracaoMinutos: 15,
           fotoUrl: "",
-          tipoImovel: "apartamento",
+          tipoImovel: "nenhum",
           numeroImovel: "",
           blocoLocal: "",
         });
@@ -1382,15 +1440,23 @@ export default function VehicleFormPage() {
             Duração:
             <select name="duracaoMinutos" value={form.duracaoMinutos} onChange={handleChange}>
               <option value={15}>15 minutos</option>
-              <option value={30}>30 minutos</option>
-              <option value={60}>1 hora</option>
+              <option value={30}>30 minutos {form.tipoContrato === "minutos" ? "⭐ Recomendado" : ""}</option>
+              <option value={60}>1 hora {form.tipoContrato === "por_hora" ? "⭐ Recomendado" : ""}</option>
               <option value={120}>2 horas</option>
               <option value={240}>4 horas</option>
               <option value={480}>8 horas</option>
               <option value={720}>12 horas</option>
-              <option value={1440}>24 horas</option>
-              <option value={43200}>30 dias (Mensal)</option>
+              <option value={1440}>24 horas {form.tipoContrato === "diaria" ? "⭐ Recomendado" : ""}</option>
+              <option value={43200}>30 dias {form.tipoContrato === "mensalista" ? "⭐ Recomendado" : ""}</option>
             </select>
+            {form.tipoContrato && (
+              <small className={styles.duracaoHint}>
+                {form.tipoContrato === "mensalista" && "💡 Mensalistas: Recomendado 30 dias"}
+                {form.tipoContrato === "diaria" && "💡 Diária: Recomendado 24 horas"}
+                {form.tipoContrato === "por_hora" && "💡 Por Hora: Recomendado 1 hora"}
+                {form.tipoContrato === "minutos" && "💡 Minutos: Recomendado 30 minutos"}
+              </small>
+            )}
           </label>
           <button type="button" onClick={preencherDataHoraAtual} className={styles.agoraButton}>
             🕐 Agora
@@ -1576,7 +1642,7 @@ export default function VehicleFormPage() {
                   <option value="mensalista">Mensalista</option>
                   <option value="diaria">Diária</option>
                   <option value="por_hora">Por Hora</option>
-                  <option value="avulso">Avulso</option>
+                  <option value="minutos">Minutos</option>
                 </select>
               </label>
             </div>
@@ -1585,6 +1651,7 @@ export default function VehicleFormPage() {
               <label>
                 Tipo de Imóvel:
                 <select name="tipoImovel" value={form.tipoImovel} onChange={handleChange}>
+                  <option value="nenhum">Nenhum</option>
                   <option value="apartamento">Apartamento</option>
                   <option value="casa">Casa</option>
                   <option value="quarto">Quarto</option>
@@ -1666,13 +1733,13 @@ export default function VehicleFormPage() {
                 <td>{v.horaEntrada}</td>
                 <td>{v.dataEntrada}</td>
                 <td className={v.duracaoMinutos === 43200 ? styles.duracaoMensal : ''}>
-                  {formatarDuracao(v.duracaoMinutos)}
+                  {calcularTempoPermitido(v.duracaoMinutos)}
                 </td>
                 <td className={obterClasseTempoDecorrido(v.dataEntrada, v.horaEntrada)}>
-                  {calcularTempoDecorrido(v.dataEntrada, v.horaEntrada)}
+                  {calcularTempoDecorrido(v.dataEntrada, v.horaEntrada, v.tipoContrato)}
                 </td>
-                <td className={obterClasseTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos)}>
-                  {calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos)}
+                <td className={obterClasseTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)}>
+                  {calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)}
                 </td>
                 <td className={styles.acoesCell}>
                   <button 
