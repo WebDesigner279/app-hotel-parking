@@ -1280,7 +1280,8 @@ export default function VehicleFormPage() {
               onClick={() => realizarBusca(busca, true, true)} 
               title="Buscar"
             >
-              🔍
+              <span className={styles.searchIcon}>🔍</span>
+              <span className={styles.searchText}>Buscar</span>
             </button>
           </div>
           {busca && (

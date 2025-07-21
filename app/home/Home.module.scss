@@ -268,6 +268,15 @@
       align-items: center;
       justify-content: center;
       
+      /* Por padrão (desktop), mostrar apenas o ícone */
+      .searchIcon {
+        display: inline;
+      }
+      
+      .searchText {
+        display: none;
+      }
+      
       &:hover {
         background: linear-gradient(135deg, #192230 0%, #2d3c56 100%);
         transform: translateY(-1px);
@@ -1207,6 +1216,15 @@
           font-size: 0.9rem;
           min-width: 50px;
           display: flex; /* Mostrar apenas no mobile */
+          
+          /* No mobile, ocultar o ícone e mostrar o texto */
+          .searchIcon {
+            display: none;
+          }
+          
+          .searchText {
+            display: inline;
+          }
         }
 
         .limparBtn {
@@ -1623,6 +1641,15 @@
           min-width: 45px;
           border-radius: 8px;
           display: flex; /* Mostrar apenas no mobile */
+          
+          /* No mobile pequeno, ocultar o ícone e mostrar o texto */
+          .searchIcon {
+            display: none;
+          }
+          
+          .searchText {
+            display: inline;
+          }
         }
 
         .limparBtn {
