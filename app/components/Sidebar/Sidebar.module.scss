@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   z-index: 1002;
-  background: #192230;
+  background: linear-gradient(135deg, #192230 0%, #2d3c56 100%);
   border: none;
   color: white;
   padding: 0.75rem;
@@ -15,7 +15,7 @@
   margin: 0;
 
   &:hover {
-    background: #2a3441;
+    background: linear-gradient(135deg, #2d3c56 0%, #192230 100%);
     transform: scale(1.05);
   }
 
@@ -42,7 +42,7 @@
   left: 0;
   width: 280px;
   height: 100vh;
-  background: linear-gradient(135deg, #192230 0%, #2a3441 100%);
+  background: linear-gradient(135deg, #192230 0%, #2d3c56 100%);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
   z-index: 1000;

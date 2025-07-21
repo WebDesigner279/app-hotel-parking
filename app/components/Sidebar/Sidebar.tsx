@@ -21,7 +21,7 @@ export default function Sidebar() {
 
   const menuItems = [
     {
-      href: "/home",
+      href: "/",
       label: "Início",
       icon: FaHome,
     },
