@@ -14,7 +14,7 @@
   display: none; /* Oculto por padrão (desktop) */
   position: fixed;
   top: 15px; /* Mais espaço do topo */
-  right: 0; /* Posicionado no canto superior direito */
+  right: 15px; /* Espaçamento do lado direito */
   z-index: 500; /* Menor que a navbar mas maior que o sidebar */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -1120,9 +1120,9 @@
     right: 0;
     width: 100%;
     max-width: 100%;
-    height: auto;
+    height: 100vh; /* Altura total da tela garantida */
     max-height: 100vh; /* Altura total da tela */
-    min-height: auto;
+    min-height: 100vh; /* Altura mínima garantida */
     padding: 3rem 2rem 2rem; /* Padding superior aumentado para o botão toggle */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     border-radius: 0; /* Sem arredondamento para ocupar toda a tela */
@@ -1509,6 +1509,7 @@
     width: 45px;
     height: 45px;
     top: 12px; /* Ajuste para telas menores - mantendo espaço do topo */
+    right: 12px; /* Espaçamento do lado direito para telas pequenas */
     border-radius: 50%; /* Manter formato redondo em telas pequenas */
     
     /* Ajustar ícone para telas pequenas */
@@ -1521,7 +1522,9 @@
   .sidebar {
     padding: 3rem 1.5rem 1.5rem; /* Padding superior aumentado para o botão toggle */
     border-radius: 0; /* Sem arredondamento para ocupar toda a tela */
+    height: 100vh; /* Altura total da tela garantida */
     max-height: 100vh; /* Altura total da tela */
+    min-height: 100vh; /* Altura mínima garantida */
     top: 0; /* Começar do topo absoluto */
 
     .sidebarHeader {
