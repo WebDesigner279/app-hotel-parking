@@ -25,9 +25,7 @@ export default function Contato() {
         onClick={toggleSidebar}
         aria-label="Toggle Sidebar"
       >
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-        </svg>
+        {sidebarOpen ? <FaTimes /> : <FaBars />}
       </button>
 
       {/* Overlay para mobile */}
