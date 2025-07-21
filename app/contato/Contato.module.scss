@@ -425,10 +425,6 @@
   .mainContent {
     padding: 1.5rem;
     padding-top: 3rem; /* Reduzido, pois o container agora tem margin-top */
-    overflow-y: auto; /* Permitir rolagem vertical */
-    -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
-    height: 100vh; /* Altura fixa para permitir rolagem */
-    box-sizing: border-box;
   }
 
   .container {
