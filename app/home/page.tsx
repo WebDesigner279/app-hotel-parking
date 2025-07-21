@@ -1173,7 +1173,7 @@ export default function VehicleFormPage() {
       {/* Sidebar moderna */}
       <aside className={`${styles.sidebar} ${sidebarAberta ? styles.open : ''}`}>
         <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>🚗 Hotel Parking</h2>
+          <h2 className={styles.sidebarTitle}>Hotel Parking</h2>
         </div>
 
         {/* Seção de navegação */}

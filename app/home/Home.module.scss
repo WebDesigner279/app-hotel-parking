@@ -13,13 +13,13 @@
 .sidebarToggle {
   display: none; /* Oculto por padrão (desktop) */
   position: fixed;
-  top: 1rem; /* Alinhado com o botão de navegação global */
-  right: 1rem; /* Posicionado à direita para não conflitar */
+  top: 15px; /* Mais espaço do topo */
+  right: 0; /* Posicionado no canto superior direito */
   z-index: 500; /* Menor que a navbar mas maior que o sidebar */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 50%;
+  border-radius: 50%; /* Sempre redondo */
   width: 50px;
   height: 50px;
   cursor: pointer;
@@ -1106,6 +1106,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 50%; /* Manter formato redondo no mobile */
   }
   
   .appLayout {
@@ -1114,17 +1115,17 @@
 
   .sidebar {
     position: fixed;
-    top: 5rem; /* Abaixo da navbar que tem ~5rem de altura */
+    top: 0; /* Começar do topo absoluto */
     left: 0;
     right: 0;
     width: 100%;
     max-width: 100%;
     height: auto;
-    max-height: 65vh; /* Reduzido para compensar a navbar */
+    max-height: 100vh; /* Altura total da tela */
     min-height: auto;
-    padding: 2rem;
+    padding: 3rem 2rem 2rem; /* Padding superior aumentado para o botão toggle */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border-radius: 0 0 15px 15px;
+    border-radius: 0; /* Sem arredondamento para ocupar toda a tela */
     margin-bottom: 0;
     z-index: 150; /* Reduzido para ser menos intrusivo */
     transform: translateY(-100%);
@@ -1295,11 +1296,12 @@
 
   .mainContent {
     padding: 1.5rem;
-    padding-top: 7rem; /* Espaço para a navbar + botão toggle */
+    padding-top: 3rem; /* Reduzido, pois o container agora tem margin-top */
   }
 
   .container {
     padding: 1.5rem;
+    margin-top: 2rem; /* Espaçamento superior para mobile */
 
     .title {
       font-size: 1.8rem;
@@ -1506,7 +1508,8 @@
   .sidebarToggle {
     width: 45px;
     height: 45px;
-    top: 5rem; /* Ajuste para telas menores */
+    top: 12px; /* Ajuste para telas menores - mantendo espaço do topo */
+    border-radius: 50%; /* Manter formato redondo em telas pequenas */
     
     /* Ajustar ícone para telas pequenas */
     svg {
@@ -1516,9 +1519,10 @@
   }
   
   .sidebar {
-    padding: 1.5rem;
-    border-radius: 0 0 12px 12px;
-    max-height: 70vh; /* Ajustado para telas pequenas */
+    padding: 3rem 1.5rem 1.5rem; /* Padding superior aumentado para o botão toggle */
+    border-radius: 0; /* Sem arredondamento para ocupar toda a tela */
+    max-height: 100vh; /* Altura total da tela */
+    top: 0; /* Começar do topo absoluto */
 
     .sidebarHeader {
       margin-bottom: 1.2rem;
@@ -1653,11 +1657,12 @@
 
   .mainContent {
     padding: 1rem;
-    padding-top: 6.5rem; /* Espaço para a navbar + botão toggle menor */
+    padding-top: 2.5rem; /* Reduzido, pois o container agora tem margin-top */
   }
 
   .container {
     padding: 1.2rem;
+    margin-top: 1.5rem; /* Espaçamento superior para telas pequenas */
     
     .title {
       font-size: 1.4rem;
