@@ -54,7 +54,7 @@ export default function VehicleFormPage() {
     tipoContrato: "mensalista",
     horaEntrada: "",
     dataEntrada: "",
-    duracaoMinutos: 15,
+    duracaoMinutos: 60,
     fotoUrl: "",
   });
 
@@ -95,23 +95,15 @@ export default function VehicleFormPage() {
       case "mensalista":
         duracaoSugerida = 43200; // 30 dias
         break;
-      case "diaria":
-        duracaoSugerida = 1440; // 24 horas
-        break;
       case "por_hora":
         duracaoSugerida = 60; // 1 hora
-        break;
-      case "minutos":
-        duracaoSugerida = 30; // 30 minutos
         break;
     }
     
     // Atualizar apenas se a duração atual não faz sentido para o tipo de contrato
     if (
       (form.tipoContrato === "mensalista" && form.duracaoMinutos < 1440) ||
-      (form.tipoContrato === "diaria" && (form.duracaoMinutos < 480 || form.duracaoMinutos > 43200)) ||
-      (form.tipoContrato === "por_hora" && form.duracaoMinutos > 720) ||
-      (form.tipoContrato === "minutos" && form.duracaoMinutos > 240)
+      (form.tipoContrato === "por_hora" && form.duracaoMinutos > 720)
     ) {
       setForm(prev => ({
         ...prev,
@@ -440,7 +432,7 @@ export default function VehicleFormPage() {
       tipoContrato: "mensalista",
       horaEntrada: "",
       dataEntrada: "",
-      duracaoMinutos: 15,
+      duracaoMinutos: 60,
       fotoUrl: "",
       tipoImovel: "nenhum",
       numeroImovel: "",
@@ -494,7 +486,7 @@ export default function VehicleFormPage() {
             tipoContrato: "mensalista",
             horaEntrada: "",
             dataEntrada: "",
-            duracaoMinutos: 15,
+            duracaoMinutos: 60,
             fotoUrl: "",
             tipoImovel: "nenhum",
             numeroImovel: "",
@@ -561,7 +553,7 @@ export default function VehicleFormPage() {
               tipoContrato: "mensalista",
               horaEntrada: "",
               dataEntrada: "",
-              duracaoMinutos: 15,
+              duracaoMinutos: 60,
               fotoUrl: "",
               tipoImovel: "nenhum",
               numeroImovel: "",
@@ -604,7 +596,7 @@ export default function VehicleFormPage() {
         tipoContrato: "mensalista",
         horaEntrada: "",
         dataEntrada: "",
-        duracaoMinutos: 15,
+        duracaoMinutos: 60,
         fotoUrl: "",
         tipoImovel: "nenhum",
         numeroImovel: "",
@@ -710,7 +702,7 @@ export default function VehicleFormPage() {
           tipoContrato: "mensalista",
           horaEntrada: "",
           dataEntrada: "",
-          duracaoMinutos: 15,
+          duracaoMinutos: 60,
           fotoUrl: "",
           tipoImovel: "nenhum",
           numeroImovel: "",
@@ -868,7 +860,7 @@ export default function VehicleFormPage() {
     if (!dataEntrada || !horaEntrada) return "0 min";
 
     const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
-    const agora = new Date();
+    const agora = tempoAtual;
     
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
@@ -909,7 +901,7 @@ export default function VehicleFormPage() {
     if (!dataEntrada || !horaEntrada) return styles.tempoDecorrido;
 
     const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
-    const agora = new Date();
+    const agora = tempoAtual;
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
     
@@ -926,7 +918,7 @@ export default function VehicleFormPage() {
     if (!dataEntrada || !horaEntrada) return styles.tempoExcedido;
 
     const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
-    const agora = new Date();
+    const agora = tempoAtual;
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
     
@@ -1056,7 +1048,7 @@ export default function VehicleFormPage() {
       tipoContrato: "mensalista",
       horaEntrada: "",
       dataEntrada: "",
-      duracaoMinutos: 15,
+      duracaoMinutos: 60,
       fotoUrl: "",
       tipoImovel: "nenhum",
       numeroImovel: "",
@@ -1192,7 +1184,7 @@ export default function VehicleFormPage() {
           tipoContrato: "mensalista",
           horaEntrada: "",
           dataEntrada: "",
-          duracaoMinutos: 15,
+          duracaoMinutos: 60,
           fotoUrl: "",
           tipoImovel: "nenhum",
           numeroImovel: "",
@@ -1440,22 +1432,18 @@ export default function VehicleFormPage() {
           <label className={styles.duracaoLabel}>
             Duração:
             <select name="duracaoMinutos" value={form.duracaoMinutos} onChange={handleChange}>
-              <option value={15}>15 minutos</option>
-              <option value={30}>30 minutos {form.tipoContrato === "minutos" ? "⭐ Recomendado" : ""}</option>
               <option value={60}>1 hora {form.tipoContrato === "por_hora" ? "⭐ Recomendado" : ""}</option>
               <option value={120}>2 horas</option>
               <option value={240}>4 horas</option>
               <option value={480}>8 horas</option>
               <option value={720}>12 horas</option>
-              <option value={1440}>24 horas {form.tipoContrato === "diaria" ? "⭐ Recomendado" : ""}</option>
+              <option value={1440}>24 horas</option>
               <option value={43200}>30 dias {form.tipoContrato === "mensalista" ? "⭐ Recomendado" : ""}</option>
             </select>
             {form.tipoContrato && (
               <small className={styles.duracaoHint}>
                 {form.tipoContrato === "mensalista" && "💡 Mensalistas: Recomendado 30 dias"}
-                {form.tipoContrato === "diaria" && "💡 Diária: Recomendado 24 horas"}
                 {form.tipoContrato === "por_hora" && "💡 Por Hora: Recomendado 1 hora"}
-                {form.tipoContrato === "minutos" && "💡 Minutos: Recomendado 30 minutos"}
               </small>
             )}
           </label>
@@ -1641,9 +1629,7 @@ export default function VehicleFormPage() {
                 Tipo de Contrato:
                 <select name="tipoContrato" value={form.tipoContrato} onChange={handleChange}>
                   <option value="mensalista">Mensalista</option>
-                  <option value="diaria">Diária</option>
                   <option value="por_hora">Por Hora</option>
-                  <option value="minutos">Minutos</option>
                 </select>
               </label>
             </div>
