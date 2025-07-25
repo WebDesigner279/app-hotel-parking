@@ -1,0 +1,995 @@
+/* Layout principal com sidebar */
+.appLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden; /* Previne scroll horizontal na página */
+  align-items: stretch; /* Faz os filhos terem a mesma altura */
+  position: relative;
+}
+
+/* Toggle button para mobile - apenas visível em telas pequenas */
+.sidebarToggle {
+  display: none; /* Oculto por padrão (desktop) */
+  position: fixed;
+  top: 15px; /* Mais espaço do topo */
+  right: 15px; /* Espaçamento do lado direito */
+  z-index: 500; /* Menor que a navbar mas maior que o sidebar */
+  background: linear-gradient(135deg, #192230 0%, #2d3c56 100%);
+  color: white;
+  border: none;
+  border-radius: 50%; /* Sempre redondo */
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 15px rgba(25, 34, 48, 0.3);
+  transition: all 0.3s ease;
+  
+  /* Centralizar ícone React */
+  align-items: center;
+  justify-content: center;
+  
+  /* Estilo do ícone React */
+  svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s ease;
+  }
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(25, 34, 48, 0.4);
+    
+    svg {
+      transform: scale(1.1);
+    }
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Overlay para mobile */
+.sidebarOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* Não interfere quando inativo */
+  
+  &.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Sidebar */
+.sidebar {
+  width: 350px;
+  background: linear-gradient(180deg, #192230 0%, #2d3c56 100%);
+  color: white;
+  padding: 2rem 1.5rem;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  min-height: 100vh;
+  margin-bottom: 0;
+  
+  /* Melhorar a rolagem */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+
+.sidebarHeader {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.sidebarTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+  background: linear-gradient(45deg, #ffffff, #e2e8f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navigationSection,
+.searchSection,
+.statsSection,
+.actionsSection {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  color: #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.navList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.navItem,
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-left-color: rgba(255, 255, 255, 0.5);
+    transform: translateX(3px);
+  }
+  
+  &.active,
+  &.activeNav {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-left-color: #ffffff;
+    font-weight: 600;
+  }
+}
+
+.navIcon {
+  font-size: 1rem;
+  width: 16px;
+  height: 16px;
+}
+
+/* Seção de busca */
+.buscaWrapper {
+  position: relative;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  backdrop-filter: blur(10px);
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  &:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  }
+}
+
+.searchButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.limparBtn {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #2d3c56 0%, #192230 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(25, 34, 48, 0.12);
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-top: 0.2rem;
+
+  &:hover {
+    background: linear-gradient(90deg, #192230 0%, #2d3c56 100%);
+    box-shadow: 0 4px 16px rgba(25, 34, 48, 0.18);
+  }
+}
+
+/* Seção de estatísticas */
+.statCard {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.8rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+.statIcon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statNumber {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+}
+
+.statLabel {
+  font-size: 0.85rem;
+  color: #cbd5e0;
+}
+
+/* Seção de ações */
+.actionButton,
+.actionButtonDanger {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-bottom: 0.8rem;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.actionButton {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  }
+}
+
+.actionButtonDanger {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  }
+}
+
+/* Conteúdo principal */
+.mainContent {
+  flex: 1;
+  padding: 1.5rem;
+  background-color: #f0f0f0;
+  min-height: 100vh;
+  overflow-x: hidden; /* Previne scroll horizontal */
+}
+
+.container {
+  background-color: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: none;
+  margin: 0;
+  width: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  .title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #192230;
+    background: linear-gradient(135deg, #192230 0%, #2d3c56 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Formulário */
+.form {
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.fotoNomeGrupo {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  border-radius: 10px;
+  border-top: 3px solid #192230;
+  margin-top: 1rem;
+}
+
+.fotoPreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.previewImage {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 3px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.placeholderFoto {
+  width: 120px;
+  height: 120px;
+  background-color: #e2e8f0;
+  border: 2px dashed #cbd5e0;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #64748b;
+  
+  p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+}
+
+.fotoButtons {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+}
+
+.cameraButton,
+.galeriaButton {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+}
+
+.cameraButton {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    transform: translateY(-1px);
+  }
+}
+
+.galeriaButton {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-1px);
+  }
+}
+
+/* Dados pessoais */
+.dadosPessoais {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.9rem;
+
+    input,
+    select {
+      margin-top: 0.4rem;
+      padding: 0 12px;
+      height: 48px;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background-color: white;
+
+      &:focus {
+        outline: none;
+        border-color: #192230;
+        box-shadow: 0 0 0 3px rgba(25, 34, 48, 0.1);
+        transform: translateY(-1px);
+      }
+
+      &:hover {
+        border-color: #cbd5e0;
+      }
+    }
+  }
+}
+
+/* Botões do formulário */
+.formButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.submitButton,
+.cancelButton {
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #192230 0%, #2d3c56 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #2d3c56 0%, #192230 100%);
+  }
+}
+
+.cancelButton {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  }
+}
+
+/* Modal da câmera */
+.cameraModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.cameraContent {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cameraVideo {
+  max-width: 100%;
+  max-height: 60vh;
+  border-radius: 8px;
+}
+
+.cameraButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.captureButton,
+.closeButton {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.captureButton {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+}
+
+.closeButton {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  }
+}
+
+/* Tabela */
+.scrollWrapper {
+  margin-top: 2rem;
+  overflow: auto;
+  max-height: 600px;
+  border: 1px solid #e3e6f0;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  
+  /* Estilização da scrollbar */
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #192230 0%, #2d3c56 100%);
+    border-radius: 4px;
+    
+    &:hover {
+      background: linear-gradient(135deg, #2d3c56 0%, #192230 100%);
+    }
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  font-size: 0.95rem;
+  min-width: 1000px;
+  table-layout: auto;
+
+  th,
+  td {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid #e3e6f0;
+    white-space: nowrap;
+    min-width: 140px;
+    max-width: 320px;
+    word-break: break-word;
+  }
+
+  th {
+    background: #192230;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border: none;
+  }
+
+  tbody tr {
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #f8f9ff;
+    }
+
+    &:nth-child(even) {
+      background-color: #fafbfc;
+
+      &:hover {
+        background-color: #f0f2ff;
+      }
+    }
+  }
+
+  td {
+    transition: background-color 0.2s ease;
+  }
+}
+
+.fotoCell {
+  width: 80px;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.fotoTabela {
+  width: 40px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.semFoto {
+  width: 40px;
+  height: 48px;
+  border-radius: 6px;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #9ca3af;
+  margin: 0 auto;
+  border: 1px solid #e5e7eb;
+}
+
+.acoesCell {
+  width: 120px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.editButton,
+.deleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.4rem 0.6rem;
+  margin: 0 0.2rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.editButton:hover {
+  background-color: #e0f2fe;
+}
+
+.deleteButton:hover {
+  background-color: #fee2e2;
+}
+
+/* Responsividade para celulares e tablets */
+@media (max-width: 768px) {
+  .appLayout {
+    overflow-x: hidden;
+    max-width: 100vw;
+    flex-direction: column;
+  }
+  
+  .mainContent {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .sidebarToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Manter formato redondo no mobile */
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0; /* Começar do topo absoluto */
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100vh; /* Altura total da tela garantida */
+    max-height: 100vh; /* Altura total da tela */
+    min-height: 100vh; /* Altura mínima garantida */
+    padding: 3rem 2rem 2rem; /* Padding superior aumentado para o botão toggle */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 0; /* Sem arredondamento para ocupar toda a tela */
+    margin-bottom: 0;
+    z-index: 150; /* Reduzido para ser menos intrusivo */
+    transform: translateY(-100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+    overflow-y: auto; /* Permitir rolagem vertical */
+    overflow-x: hidden; /* Evitar rolagem horizontal */
+    opacity: 0;
+    pointer-events: none; /* Evita interferência quando fechado */
+    
+    /* Melhorar a rolagem no mobile */
+    -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
+    overscroll-behavior: contain; /* Evitar que a rolagem "escape" para a página */
+    
+    &.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sidebarHeader {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: center; /* Centralizar o título */
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      
+      .sidebarTitle {
+        font-size: 1.4rem;
+      }
+    }
+
+    .sectionTitle {
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .statsSection {
+      margin-bottom: 1.5rem; /* Reduzido para mobile */
+
+      .statCard {
+        padding: 1rem;
+        margin-bottom: 0.6rem; /* Reduzido para mobile */
+
+        .statIcon {
+          font-size: 1.3rem;
+          margin-right: 1rem;
+        }
+
+        .statInfo {
+          .statNumber {
+            font-size: 1.5rem;
+          }
+
+          .statLabel {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+
+    .actionsSection {
+      margin-bottom: 1rem; /* Adicionado margem inferior */
+      
+      .actionButton, .actionButtonDanger {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+        margin-bottom: 0.6rem; /* Reduzido para mobile */
+      }
+    }
+  }
+  
+  .sidebarOverlay {
+    display: block;
+  }
+
+  .mainContent {
+    padding: 1.5rem;
+    padding-top: 3rem; /* Reduzido, pois o container agora tem margin-top */
+  }
+
+  .container {
+    padding: 1.5rem;
+    margin-top: 2rem; /* Espaçamento superior para mobile */
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+
+    .title {
+      font-size: 1.8rem;
+    }
+  }
+  
+  .form {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .fotoNomeGrupo {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+    border-top: none !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+
+    .fotoPreview {
+      align-self: center !important;
+      margin-bottom: 1rem !important;
+    }
+
+    .dadosPessoais {
+      width: 100% !important;
+
+      .formRow {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        margin-bottom: 1rem !important;
+
+        label {
+          font-size: 0.9rem !important;
+
+          input, select {
+            font-size: 0.9rem !important;
+            padding: 0 10px !important;
+            height: 44px !important;
+          }
+        }
+      }
+    }
+  }
+
+  .formButtons {
+    flex-direction: column;
+    gap: 1rem;
+
+    .submitButton,
+    .cancelButton {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+    }
+  }
+
+  .table {
+    font-size: 0.8rem;
+
+    th,
+    td {
+      padding: 0.5rem;
+    }
+  }
+
+  .fotoTabela {
+    width: 40px;
+    height: 40px;
+  }
+
+  .semFoto {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .scrollWrapper {
+    max-height: 400px;
+  }
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 480px) {
+  .sidebarToggle {
+    width: 45px;
+    height: 45px;
+    top: 12px; /* Ajuste para telas menores - mantendo espaço do topo */
+    right: 12px; /* Espaçamento do lado direito para telas pequenas */
+    border-radius: 50%; /* Manter formato redondo em telas pequenas */
+    
+    /* Ajustar ícone para telas pequenas */
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+  
+  .sidebar {
+    padding: 3rem 1.5rem 1.5rem; /* Padding superior aumentado para o botão toggle */
+    border-radius: 0; /* Sem arredondamento para ocupar toda a tela */
+    height: 100vh; /* Altura total da tela garantida */
+    max-height: 100vh; /* Altura total da tela */
+    min-height: 100vh; /* Altura mínima garantida */
+    top: 0; /* Começar do topo absoluto */
+
+    .sidebarHeader {
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.8rem;
+      display: flex;
+      justify-content: center; /* Centralizar o título */
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      
+      .sidebarTitle {
+        font-size: 1.3rem;
+      }
+    }
+  }
+
+  .container {
+    padding: 1rem;
+
+    .title {
+      font-size: 1.5rem;
+    }
+  }
+
+  .fotoNomeGrupo {
+    padding: 1rem !important;
+  }
+
+  .formButtons {
+    .submitButton,
+    .cancelButton {
+      padding: 0.8rem;
+      font-size: 0.9rem;
+    }
+  }
+}

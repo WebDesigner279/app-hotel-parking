@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaBars, FaTimes, FaHome, FaInfoCircle, FaEnvelope } from "react-icons/fa";
+import { FaBars, FaTimes, FaHome, FaInfoCircle, FaEnvelope, FaUser } from "react-icons/fa";
 import styles from "./Contato.module.scss";
 
 export default function Contato() {
@@ -50,7 +50,15 @@ export default function Contato() {
               onClick={closeSidebar}
             >
               <FaHome className={styles.navIcon} />
-              <span>Início</span>
+              <span>Sistema Principal</span>
+            </Link>
+            <Link 
+              href="/cadastro-pessoal" 
+              className={`${styles.navLink} ${pathname === '/cadastro-pessoal' ? styles.activeNav : ''}`}
+              onClick={closeSidebar}
+            >
+              <FaUser className={styles.navIcon} />
+              <span>Cadastro Pessoal</span>
             </Link>
             <Link 
               href="/sobre" 

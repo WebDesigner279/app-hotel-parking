@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaBars, FaTimes, FaHome, FaInfoCircle, FaEnvelope } from "react-icons/fa";
+import { FaBars, FaTimes, FaHome, FaInfoCircle, FaEnvelope, FaUser } from "react-icons/fa";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import styles from "./Home.module.scss";
 
 type VehicleType = "carro" | "moto" | "caminhao";
@@ -22,9 +24,6 @@ interface VehicleData {
   telefone: string;
   email: string;
   profissao: string;
-  tipoImovel: string;
-  numeroImovel: string;
-  blocoLocal: string;
   tipoContrato: string;
   horaEntrada: string;
   dataEntrada: string;
@@ -48,9 +47,6 @@ export default function VehicleFormPage() {
     telefone: "",
     email: "",
     profissao: "",
-    tipoImovel: "nenhum",
-    numeroImovel: "",
-    blocoLocal: "",
     tipoContrato: "mensalista",
     horaEntrada: "",
     dataEntrada: "",
@@ -208,7 +204,7 @@ export default function VehicleFormPage() {
     
     // Aplicar capitalização automática para campos específicos
     let valorFormatado = value;
-    if (name === 'condutor' || name === 'cor' || name === 'modelo' || name === 'profissao' || name === 'blocoLocal') {
+    if (name === 'condutor' || name === 'cor' || name === 'modelo' || name === 'profissao') {
       valorFormatado = capitalizarTexto(value);
     }
     
@@ -434,9 +430,6 @@ export default function VehicleFormPage() {
       dataEntrada: "",
       duracaoMinutos: 60,
       fotoUrl: "",
-      tipoImovel: "nenhum",
-      numeroImovel: "",
-      blocoLocal: "",
     });
     setEditandoId(null);
     setEdicaoManual(false);
@@ -452,7 +445,7 @@ export default function VehicleFormPage() {
   const realizarBusca = (termo: string, fecharSidebar: boolean = false, carregarNoFormulario: boolean = false) => {
     // Verificar se é mobile e se o termo está vazio quando acionado pelo botão
     if (fecharSidebar && !termo.trim() && typeof window !== 'undefined' && window.innerWidth <= 768) {
-      alert("📝 Digite seu critério de busca\n\nVocê pode buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento\n• E-mail\n• Profissão\n• Tipo de Imóvel\n• Número do Imóvel\n• Bloco/Local");
+      alert("📝 Digite seu critério de busca\n\nVocê pode buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento\n• E-mail\n• Profissão");
       return;
     }
     
@@ -488,9 +481,6 @@ export default function VehicleFormPage() {
             dataEntrada: "",
             duracaoMinutos: 60,
             fotoUrl: "",
-            tipoImovel: "nenhum",
-            numeroImovel: "",
-            blocoLocal: "",
           });
           setPreviewFoto(null);
         }
@@ -509,9 +499,6 @@ export default function VehicleFormPage() {
           normalizarTexto(item.telefone).includes(termoNormalizado) ||
           normalizarTexto(item.email).includes(termoNormalizado) ||
           normalizarTexto(item.profissao).includes(termoNormalizado) ||
-          normalizarTexto(item.tipoImovel).includes(termoNormalizado) ||
-          normalizarTexto(item.numeroImovel).includes(termoNormalizado) ||
-          normalizarTexto(item.blocoLocal).includes(termoNormalizado) ||
           normalizarTexto(item.ano).includes(termoNormalizado)
       );
     
@@ -530,7 +517,7 @@ export default function VehicleFormPage() {
         } else {
           // Se não encontrou resultados, mostrar alerta apenas quando acionado pelo botão
           if (fecharSidebar) {
-            alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Marca do veículo\n• Cor\n• Número da vaga\n• Documento\n• Telefone\n• E-mail\n• Profissão\n• Ano\n• Tipo de Imóvel\n• Número do Imóvel\n• Bloco/Local`);
+            alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Marca do veículo\n• Cor\n• Número da vaga\n• Documento\n• Telefone\n• E-mail\n• Profissão\n• Ano`);
           }
           // Limpar formulário se não há resultados e estava carregando automaticamente
           if (!fecharSidebar && editandoId) {
@@ -555,9 +542,6 @@ export default function VehicleFormPage() {
               dataEntrada: "",
               duracaoMinutos: 60,
               fotoUrl: "",
-              tipoImovel: "nenhum",
-              numeroImovel: "",
-              blocoLocal: "",
             });
             setPreviewFoto(null);
           }
@@ -1089,50 +1073,172 @@ export default function VehicleFormPage() {
     }
   };
 
-  const exportarParaCSV = () => {
+  const exportarParaPDF = () => {
     if (resultados.length === 0) {
       alert("Não há dados para exportar!");
       return;
     }
 
-    const cabecalho = [
-      "Tipo", "Placa", "Modelo", "Cor", "Vaga", "Condutor", "Documento", 
-      "Telefone", "E-mail", "Profissão", "Tipo Contrato",
-      "Data Entrada", "Hora Entrada", "Tempo Permitido", "Tempo Decorrido", "Tempo Excedido"
-    ].join(",");
+    try {
+      const doc = new jsPDF('landscape', 'mm', 'a4'); // A4 paisagem
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+      
+      // Configurar título
+      doc.setFontSize(16);
+      doc.text('Relatório de Veículos - Hotel Parking', pageWidth / 2, 15, { align: 'center' });
+      
+      // Adicionar data de geração
+      doc.setFontSize(10);
+      const dataAtual = new Date().toLocaleString('pt-BR');
+      doc.text(`Gerado em: ${dataAtual}`, pageWidth / 2, 25, { align: 'center' });
+      
+      // Primeira tabela - Dados principais
+      const colunasPrincipais = [
+        'Tipo', 'Placa', 'Modelo', 'Cor', 'Vaga', 'Condutor', 
+        'Documento', 'Telefone', 'Tipo Contrato'
+      ];
 
-    const linhas = resultados.map(v => [
-      `"${v.tipo}"`,
-      `"${v.placa}"`,
-      `"${v.modelo}"`,
-      `"${v.cor}"`,
-      `"${v.vaga}"`,
-      `"${v.condutor}"`,
-      `"${v.documento}"`,
-      `"${v.telefone}"`,
-      `"${v.email}"`,
-      `"${v.profissao}"`,
-      `"${v.tipoContrato}"`,
-      `"${v.dataEntrada}"`,
-      `"${v.horaEntrada}"`,
-      `"${calcularTempoPermitido(v.duracaoMinutos)}"`,
-      `"${calcularTempoDecorrido(v.dataEntrada, v.horaEntrada, v.tipoContrato)}"`,
-      `"${calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)}"`
-    ].join(","));
+      const linhasPrincipais = resultados.map(v => [
+        v.tipo,
+        v.placa,
+        v.modelo || '-',
+        v.cor || '-',
+        v.vaga || '-',
+        (v.condutor || '-').length > 20 ? (v.condutor || '-').substring(0, 20) + '...' : (v.condutor || '-'),
+        v.documento || '-',
+        v.telefone || '-',
+        v.tipoContrato === 'mensalista' ? 'Mensalista' : 'Por Hora'
+      ]);
 
-    const csvContent = [cabecalho, ...linhas].join("\\n");
-    
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `veiculos_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Gerar primeira tabela
+      autoTable(doc, {
+        head: [colunasPrincipais],
+        body: linhasPrincipais,
+        startY: 35,
+        styles: {
+          fontSize: 8,
+          cellPadding: 3,
+          overflow: 'linebreak',
+          halign: 'center',
+          valign: 'middle',
+        },
+        headStyles: {
+          fillColor: [25, 34, 48],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 9,
+          halign: 'center',
+        },
+        alternateRowStyles: {
+          fillColor: [248, 249, 250],
+        },
+        columnStyles: {
+          0: { cellWidth: 20 }, // Tipo
+          1: { cellWidth: 25 }, // Placa
+          2: { cellWidth: 35 }, // Modelo
+          3: { cellWidth: 20 }, // Cor
+          4: { cellWidth: 15 }, // Vaga
+          5: { cellWidth: 40 }, // Condutor
+          6: { cellWidth: 30 }, // Documento
+          7: { cellWidth: 30 }, // Telefone
+          8: { cellWidth: 25 }, // Tipo Contrato
+        },
+        margin: { top: 35, right: 15, bottom: 20, left: 15 },
+        tableWidth: 'auto',
+        didDrawPage: (data) => {
+          // Adicionar título da seção
+          if (data.pageNumber === 1) {
+            doc.setFontSize(12);
+            doc.text('Dados Principais dos Veículos', 15, data.settings.startY - 10);
+          }
+        },
+      });
 
-    alert(`✅ Dados exportados com sucesso!\\n\\nArquivo: veiculos_${new Date().toISOString().split('T')[0]}.csv\\nTotal de registros: ${resultados.length}`);
+      // Calcular posição para segunda tabela
+      const finalY = (doc as any).lastAutoTable.finalY || 100;
+      
+      // Segunda tabela - Dados de tempo
+      const colunasTempos = [
+        'Placa', 'Data Entrada', 'Hora Entrada', 'Tempo Permitido', 
+        'Tempo Decorrido', 'Tempo Excedido'
+      ];
+
+      const linhasTempos = resultados.map(v => [
+        v.placa,
+        v.dataEntrada ? new Date(v.dataEntrada).toLocaleDateString('pt-BR') : '-',
+        v.horaEntrada || '-',
+        calcularTempoPermitido(v.duracaoMinutos),
+        calcularTempoDecorrido(v.dataEntrada, v.horaEntrada, v.tipoContrato),
+        calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)
+      ]);
+
+      // Verificar se cabe na página atual ou precisa de nova página
+      const espacoRestante = pageHeight - finalY - 40;
+      const alturaEstimada = (linhasTempos.length + 2) * 8; // Estimativa de altura
+      
+      if (alturaEstimada > espacoRestante) {
+        doc.addPage();
+      }
+
+      // Gerar segunda tabela
+      autoTable(doc, {
+        head: [colunasTempos],
+        body: linhasTempos,
+        startY: alturaEstimada > espacoRestante ? 30 : finalY + 20,
+        styles: {
+          fontSize: 8,
+          cellPadding: 3,
+          overflow: 'linebreak',
+          halign: 'center',
+          valign: 'middle',
+        },
+        headStyles: {
+          fillColor: [25, 34, 48],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 9,
+          halign: 'center',
+        },
+        alternateRowStyles: {
+          fillColor: [248, 249, 250],
+        },
+        columnStyles: {
+          0: { cellWidth: 25 }, // Placa
+          1: { cellWidth: 30 }, // Data Entrada
+          2: { cellWidth: 25 }, // Hora Entrada
+          3: { cellWidth: 35 }, // Tempo Permitido
+          4: { cellWidth: 35 }, // Tempo Decorrido
+          5: { cellWidth: 35 }, // Tempo Excedido
+        },
+        margin: { top: 30, right: 15, bottom: 20, left: 15 },
+        tableWidth: 'auto',
+        didDrawPage: (data) => {
+          // Adicionar título da seção
+          doc.setFontSize(12);
+          doc.text('Controle de Tempo', 15, data.settings.startY - 10);
+        },
+      });
+
+      // Adicionar rodapé em todas as páginas
+      const totalPages = (doc as any).internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        const text = `Página ${i} de ${totalPages} - Total de registros: ${resultados.length}`;
+        const textWidth = doc.getTextWidth(text);
+        doc.text(text, (pageWidth - textWidth) / 2, pageHeight - 10);
+      }
+
+      // Salvar o PDF
+      const nomeArquivo = `veiculos_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(nomeArquivo);
+
+      alert(`✅ Dados exportados com sucesso!\\n\\nArquivo: ${nomeArquivo}\\nTotal de registros: ${resultados.length}\\n\\nO relatório foi dividido em duas seções:\\n• Dados Principais dos Veículos\\n• Controle de Tempo`);
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      alert('❌ Erro ao gerar o arquivo PDF. Tente novamente.');
+    }
   };
 
   const excluirTodosDados = () => {
@@ -1236,7 +1342,15 @@ export default function VehicleFormPage() {
               onClick={fecharSidebar}
             >
               <FaHome className={styles.navIcon} />
-              <span>Início</span>
+              <span>Sistema Principal</span>
+            </Link>
+            <Link 
+              href="/cadastro-pessoal" 
+              className={`${styles.navLink} ${pathname === "/cadastro-pessoal" ? styles.activeNav : ""}`}
+              onClick={fecharSidebar}
+            >
+              <FaUser className={styles.navIcon} />
+              <span>Cadastro Pessoal</span>
             </Link>
             <Link 
               href="/sobre" 
@@ -1345,8 +1459,8 @@ export default function VehicleFormPage() {
         {/* Seção de ações */}
         <div className={styles.actionsSection}>
           <h3 className={styles.sectionTitle}>Ações</h3>
-          <button onClick={exportarParaCSV} className={styles.actionButton} title="Exportar dados para CSV">
-            📊 Exportar CSV
+          <button onClick={exportarParaPDF} className={styles.actionButton} title="Exportar dados para PDF">
+            � Exportar PDF
           </button>
           <button onClick={excluirTodosDados} className={styles.actionButtonDanger} title="Excluir todos os dados">
             🗑️ Excluir Todos
@@ -1631,40 +1745,6 @@ export default function VehicleFormPage() {
                   <option value="mensalista">Mensalista</option>
                   <option value="por_hora">Por Hora</option>
                 </select>
-              </label>
-            </div>
-
-            <div className={styles.formRow}>
-              <label>
-                Tipo de Imóvel:
-                <select name="tipoImovel" value={form.tipoImovel} onChange={handleChange}>
-                  <option value="nenhum">Nenhum</option>
-                  <option value="apartamento">Apartamento</option>
-                  <option value="casa">Casa</option>
-                  <option value="quarto">Quarto</option>
-                </select>
-              </label>
-
-              <label>
-                Nº Imóvel:
-                <input
-                  type="text"
-                  name="numeroImovel"
-                  value={form.numeroImovel}
-                  onChange={handleChange}
-                  placeholder="Ex: 101, 201A, 15"
-                />
-              </label>
-
-              <label>
-                Bloco/Local:
-                <input
-                  type="text"
-                  name="blocoLocal"
-                  value={form.blocoLocal}
-                  onChange={handleChange}
-                  placeholder="Ex: Bloco A, Torre 1"
-                />
               </label>
             </div>
           </div>
