@@ -582,9 +582,6 @@ export default function VehicleFormPage() {
         dataEntrada: "",
         duracaoMinutos: 60,
         fotoUrl: "",
-        tipoImovel: "nenhum",
-        numeroImovel: "",
-        blocoLocal: "",
       });
       setPreviewFoto(null);
       
@@ -688,9 +685,6 @@ export default function VehicleFormPage() {
           dataEntrada: "",
           duracaoMinutos: 60,
           fotoUrl: "",
-          tipoImovel: "nenhum",
-          numeroImovel: "",
-          blocoLocal: "",
         });
         setPreviewFoto(null);
         
@@ -1034,9 +1028,6 @@ export default function VehicleFormPage() {
       dataEntrada: "",
       duracaoMinutos: 60,
       fotoUrl: "",
-      tipoImovel: "nenhum",
-      numeroImovel: "",
-      blocoLocal: "",
     });
     setPreviewFoto(null);
     setBusca("");
@@ -1292,9 +1283,6 @@ export default function VehicleFormPage() {
           dataEntrada: "",
           duracaoMinutos: 60,
           fotoUrl: "",
-          tipoImovel: "nenhum",
-          numeroImovel: "",
-          blocoLocal: "",
         });
         setPreviewFoto(null);
       }
