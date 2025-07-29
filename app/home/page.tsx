@@ -15,18 +15,15 @@ interface VehicleData {
   tipo: VehicleType;
   placa: string;
   modelo: string;
-  marca: string;
   ano: string;
   cor: string;
-  vaga: string;
   condutor: string;
   documento: string;
   telefone: string;
-  email: string;
   profissao: string;
   tipoContrato: string;
-  horaEntrada: string;
   dataEntrada: string;
+  horaEntrada: string;
   duracaoMinutos: number;
   fotoUrl: string;
 }
@@ -38,18 +35,15 @@ export default function VehicleFormPage() {
     tipo: "carro",
     placa: "",
     modelo: "",
-    marca: "",
     ano: "",
     cor: "",
-    vaga: "",
     condutor: "",
     documento: "",
     telefone: "",
-    email: "",
     profissao: "",
     tipoContrato: "mensalista",
-    horaEntrada: "",
     dataEntrada: "",
+    horaEntrada: "",
     duracaoMinutos: 60,
     fotoUrl: "",
   });
@@ -208,7 +202,30 @@ export default function VehicleFormPage() {
       valorFormatado = capitalizarTexto(value);
     }
     
-    setForm((prev) => ({ ...prev, [name]: valorFormatado }));
+    // Sincronizar duração com tipo de contrato
+    if (name === 'tipoContrato') {
+      let duracaoSincronizada = form.duracaoMinutos;
+      
+      if (value === 'por_hora') {
+        // Para "Por Hora", ajustar para durações em horas (máximo 12 horas)
+        if (form.duracaoMinutos > 720) { // Se for maior que 12 horas
+          duracaoSincronizada = 60; // Resetar para 1 hora (recomendado)
+        }
+      } else if (value === 'mensalista') {
+        // Para "Mensalista", ajustar para durações em dias
+        if (form.duracaoMinutos < 1440) { // Se for menor que 24 horas
+          duracaoSincronizada = 43200; // Resetar para 30 dias (recomendado)
+        }
+      }
+      
+      setForm((prev) => ({ 
+        ...prev, 
+        [name]: valorFormatado,
+        duracaoMinutos: duracaoSincronizada
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: valorFormatado }));
+    }
   };
 
   const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -395,8 +412,7 @@ export default function VehicleFormPage() {
     const agora = new Date();
     const formParaSalvar = {
       ...form,
-      dataEntrada: form.dataEntrada || agora.toISOString().split('T')[0],
-      horaEntrada: form.horaEntrada || agora.toTimeString().slice(0, 5)
+      dataEntrada: form.dataEntrada || agora.toISOString().split('T')[0]
     };
 
     if (editandoId) {
@@ -416,18 +432,15 @@ export default function VehicleFormPage() {
       tipo: "carro",
       placa: "",
       modelo: "",
-      marca: "",
       ano: "",
       cor: "",
-      vaga: "",
       condutor: "",
       documento: "",
       telefone: "",
-      email: "",
       profissao: "",
       tipoContrato: "mensalista",
-      horaEntrada: "",
       dataEntrada: "",
+      horaEntrada: "",
       duracaoMinutos: 60,
       fotoUrl: "",
     });
@@ -445,7 +458,7 @@ export default function VehicleFormPage() {
   const realizarBusca = (termo: string, fecharSidebar: boolean = false, carregarNoFormulario: boolean = false) => {
     // Verificar se é mobile e se o termo está vazio quando acionado pelo botão
     if (fecharSidebar && !termo.trim() && typeof window !== 'undefined' && window.innerWidth <= 768) {
-      alert("📝 Digite seu critério de busca\n\nVocê pode buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Número da vaga\n• Documento\n• E-mail\n• Profissão");
+      alert("📝 Digite seu critério de busca\n\nVocê pode buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Documento\n• E-mail\n• Profissão");
       return;
     }
     
@@ -467,17 +480,13 @@ export default function VehicleFormPage() {
             tipo: "carro",
             placa: "",
             modelo: "",
-            marca: "",
             ano: "",
             cor: "",
-            vaga: "",
             condutor: "",
             documento: "",
             telefone: "",
-            email: "",
             profissao: "",
             tipoContrato: "mensalista",
-            horaEntrada: "",
             dataEntrada: "",
             duracaoMinutos: 60,
             fotoUrl: "",
@@ -492,12 +501,9 @@ export default function VehicleFormPage() {
           normalizarTexto(item.condutor).includes(termoNormalizado) ||
           normalizarTexto(item.placa.replace('-', '')).includes(termoNormalizado.replace('-', '')) ||
           normalizarTexto(item.modelo).includes(termoNormalizado) ||
-          normalizarTexto(item.marca).includes(termoNormalizado) ||
           normalizarTexto(item.cor).includes(termoNormalizado) ||
-          normalizarTexto(item.vaga).includes(termoNormalizado) ||
           normalizarTexto(item.documento).includes(termoNormalizado) ||
           normalizarTexto(item.telefone).includes(termoNormalizado) ||
-          normalizarTexto(item.email).includes(termoNormalizado) ||
           normalizarTexto(item.profissao).includes(termoNormalizado) ||
           normalizarTexto(item.ano).includes(termoNormalizado)
       );
@@ -517,7 +523,7 @@ export default function VehicleFormPage() {
         } else {
           // Se não encontrou resultados, mostrar alerta apenas quando acionado pelo botão
           if (fecharSidebar) {
-            alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Marca do veículo\n• Cor\n• Número da vaga\n• Documento\n• Telefone\n• E-mail\n• Profissão\n• Ano`);
+            alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome do condutor\n• Placa do veículo\n• Modelo do veículo\n• Cor\n• Documento\n• Telefone\n• E-mail\n• Profissão\n• Ano`);
           }
           // Limpar formulário se não há resultados e estava carregando automaticamente
           if (!fecharSidebar && editandoId) {
@@ -528,17 +534,13 @@ export default function VehicleFormPage() {
               tipo: "carro",
               placa: "",
               modelo: "",
-              marca: "",
               ano: "",
               cor: "",
-              vaga: "",
               condutor: "",
               documento: "",
               telefone: "",
-              email: "",
               profissao: "",
               tipoContrato: "mensalista",
-              horaEntrada: "",
               dataEntrada: "",
               duracaoMinutos: 60,
               fotoUrl: "",
@@ -568,17 +570,13 @@ export default function VehicleFormPage() {
         tipo: "carro",
         placa: "",
         modelo: "",
-        marca: "",
         ano: "",
         cor: "",
-        vaga: "",
         condutor: "",
         documento: "",
         telefone: "",
-        email: "",
         profissao: "",
         tipoContrato: "mensalista",
-        horaEntrada: "",
         dataEntrada: "",
         duracaoMinutos: 60,
         fotoUrl: "",
@@ -654,7 +652,6 @@ export default function VehicleFormPage() {
       `🚗 Placa: ${veiculo.placa}\n` +
       `👤 Condutor: ${veiculo.condutor}\n` +
       `🚙 Modelo: ${veiculo.modelo} (${veiculo.cor})\n` +
-      `🅿️ Vaga: ${veiculo.vaga}\n` +
       `📄 Documento: ${veiculo.documento}\n\n` +
       `❌ Esta ação NÃO PODE ser desfeita!\n\n` +
       `Clique "OK" para EXCLUIR ou "Cancelar" para manter o registro.`;
@@ -671,17 +668,13 @@ export default function VehicleFormPage() {
           tipo: "carro",
           placa: "",
           modelo: "",
-          marca: "",
           ano: "",
           cor: "",
-          vaga: "",
           condutor: "",
           documento: "",
           telefone: "",
-          email: "",
           profissao: "",
           tipoContrato: "mensalista",
-          horaEntrada: "",
           dataEntrada: "",
           duracaoMinutos: 60,
           fotoUrl: "",
@@ -835,9 +828,11 @@ export default function VehicleFormPage() {
 
   // Função para calcular o tempo excedido
   const calcularTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number, tipoContrato: string = "mensalista") => {
-    if (!dataEntrada || !horaEntrada) return "0 min";
+    if (!dataEntrada) return "0 min";
 
-    const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
+    // Combinar data e hora para criar o timestamp completo
+    const horaCompleta = horaEntrada || "00:00";
+    const dataHoraEntrada = new Date(`${dataEntrada}T${horaCompleta}:00`);
     const agora = tempoAtual;
     
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
@@ -875,10 +870,10 @@ export default function VehicleFormPage() {
   };
 
   // Função para obter a classe CSS do tempo decorrido
-  const obterClasseTempoDecorrido = (dataEntrada: string, horaEntrada: string) => {
-    if (!dataEntrada || !horaEntrada) return styles.tempoDecorrido;
+  const obterClasseTempoDecorrido = (dataEntrada: string) => {
+    if (!dataEntrada) return styles.tempoDecorrido;
 
-    const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
+    const dataHoraEntrada = new Date(`${dataEntrada}T00:00:00`);
     const agora = tempoAtual;
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
@@ -893,9 +888,11 @@ export default function VehicleFormPage() {
 
   // Função para obter a classe CSS baseada no tempo excedido
   const obterClasseTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number, tipoContrato: string = "mensalista") => {
-    if (!dataEntrada || !horaEntrada) return styles.tempoExcedido;
+    if (!dataEntrada) return styles.tempoExcedido;
 
-    const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
+    // Combinar data e hora para criar o timestamp completo
+    const horaCompleta = horaEntrada || "00:00";
+    const dataHoraEntrada = new Date(`${dataEntrada}T${horaCompleta}:00`);
     const agora = tempoAtual;
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
@@ -959,50 +956,28 @@ export default function VehicleFormPage() {
   };
 
   // Função para calcular o tempo decorrido total
-  const calcularTempoDecorrido = (dataEntrada: string, horaEntrada: string, tipoContrato: string = "mensalista") => {
-    if (!dataEntrada || !horaEntrada) return "0 min";
+  const calcularTempoDecorrido = (dataEntrada: string, tipoContrato: string = "mensalista") => {
+    if (!dataEntrada) return "0 dias";
 
-    const dataHoraEntrada = new Date(`${dataEntrada}T${horaEntrada}`);
+    const dataHoraEntrada = new Date(`${dataEntrada}T00:00:00`);
     const agora = new Date();
     
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
-    const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
+    const diferencaDias = Math.floor(diferencaMs / (1000 * 60 * 60 * 24));
     
     // Se o tempo é negativo (entrada futura), mostrar tempo restante até o início
-    if (diferencaMinutos < 0) {
-      const minutosRestantes = Math.abs(diferencaMinutos);
-      if (minutosRestantes < 60) {
-        return `Inicia em ${minutosRestantes} min`;
-      } else if (minutosRestantes < 1440) {
-        const horas = Math.floor(minutosRestantes / 60);
-        const minutos = minutosRestantes % 60;
-        return minutos > 0 ? `Inicia em ${horas}h ${minutos}min` : `Inicia em ${horas}h`;
-      } else {
-        const dias = Math.floor(minutosRestantes / 1440);
-        const horas = Math.floor((minutosRestantes % 1440) / 60);
-        if (horas > 0) {
-          return `Inicia em ${dias}d ${horas}h`;
-        } else {
-          return `Inicia em ${dias} dia${dias > 1 ? 's' : ''}`;
-        }
-      }
+    if (diferencaDias < 0) {
+      const diasRestantes = Math.abs(diferencaDias);
+      return `Inicia em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`;
     }
     
-    // Tempo normal (passado) - formatação simples baseada na magnitude
-    if (diferencaMinutos < 60) {
-      return `${diferencaMinutos} min`;
-    } else if (diferencaMinutos < 1440) {
-      const horas = Math.floor(diferencaMinutos / 60);
-      const minutos = diferencaMinutos % 60;
-      return minutos > 0 ? `${horas}h ${minutos}min` : `${horas}h`;
+    // Tempo normal (passado) - formatação em dias
+    if (diferencaDias === 0) {
+      return "Hoje";
+    } else if (diferencaDias === 1) {
+      return "1 dia";
     } else {
-      const dias = Math.floor(diferencaMinutos / 1440);
-      const horas = Math.floor((diferencaMinutos % 1440) / 60);
-      if (horas > 0) {
-        return `${dias}d ${horas}h`;
-      } else {
-        return `${dias} dia${dias > 1 ? 's' : ''}`;
-      }
+      return `${diferencaDias} dias`;
     }
   };
 
@@ -1014,17 +989,13 @@ export default function VehicleFormPage() {
       tipo: "carro",
       placa: "",
       modelo: "",
-      marca: "",
       ano: "",
       cor: "",
-      vaga: "",
       condutor: "",
       documento: "",
       telefone: "",
-      email: "",
       profissao: "",
       tipoContrato: "mensalista",
-      horaEntrada: "",
       dataEntrada: "",
       duracaoMinutos: 60,
       fotoUrl: "",
@@ -1043,7 +1014,7 @@ export default function VehicleFormPage() {
   const preencherDataHoraAtual = () => {
     const agora = new Date();
     const dataAtual = agora.toISOString().split('T')[0];
-    const horaAtual = agora.toTimeString().slice(0, 5);
+    const horaAtual = agora.toTimeString().slice(0, 5); // HH:MM
     
     setForm(prev => ({
       ...prev,
@@ -1086,7 +1057,7 @@ export default function VehicleFormPage() {
       
       // Primeira tabela - Dados principais
       const colunasPrincipais = [
-        'Tipo', 'Placa', 'Modelo', 'Cor', 'Vaga', 'Condutor', 
+        'Tipo', 'Placa', 'Modelo', 'Cor', 'Condutor', 
         'Documento', 'Telefone', 'Tipo Contrato'
       ];
 
@@ -1095,7 +1066,6 @@ export default function VehicleFormPage() {
         v.placa,
         v.modelo || '-',
         v.cor || '-',
-        v.vaga || '-',
         (v.condutor || '-').length > 20 ? (v.condutor || '-').substring(0, 20) + '...' : (v.condutor || '-'),
         v.documento || '-',
         v.telefone || '-',
@@ -1129,11 +1099,10 @@ export default function VehicleFormPage() {
           1: { cellWidth: 25 }, // Placa
           2: { cellWidth: 35 }, // Modelo
           3: { cellWidth: 20 }, // Cor
-          4: { cellWidth: 15 }, // Vaga
-          5: { cellWidth: 40 }, // Condutor
-          6: { cellWidth: 30 }, // Documento
-          7: { cellWidth: 30 }, // Telefone
-          8: { cellWidth: 25 }, // Tipo Contrato
+          4: { cellWidth: 40 }, // Condutor
+          5: { cellWidth: 30 }, // Documento
+          6: { cellWidth: 30 }, // Telefone
+          7: { cellWidth: 25 }, // Tipo Contrato
         },
         margin: { top: 35, right: 15, bottom: 20, left: 15 },
         tableWidth: 'auto',
@@ -1151,17 +1120,16 @@ export default function VehicleFormPage() {
       
       // Segunda tabela - Dados de tempo
       const colunasTempos = [
-        'Placa', 'Data Entrada', 'Hora Entrada', 'Tempo Permitido', 
+        'Placa', 'Data Entrada', 'Tempo Permitido', 
         'Tempo Decorrido', 'Tempo Excedido'
       ];
 
       const linhasTempos = resultados.map(v => [
         v.placa,
         v.dataEntrada ? new Date(v.dataEntrada).toLocaleDateString('pt-BR') : '-',
-        v.horaEntrada || '-',
         calcularTempoPermitido(v.duracaoMinutos),
-        calcularTempoDecorrido(v.dataEntrada, v.horaEntrada, v.tipoContrato),
-        calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)
+        calcularTempoDecorrido(v.dataEntrada, v.tipoContrato),
+        calcularTempoExcedido(v.dataEntrada, v.duracaoMinutos, v.tipoContrato)
       ]);
 
       // Verificar se cabe na página atual ou precisa de nova página
@@ -1269,17 +1237,13 @@ export default function VehicleFormPage() {
           tipo: "carro",
           placa: "",
           modelo: "",
-          marca: "",
           ano: "",
           cor: "",
-          vaga: "",
           condutor: "",
           documento: "",
           telefone: "",
-          email: "",
           profissao: "",
           tipoContrato: "mensalista",
-          horaEntrada: "",
           dataEntrada: "",
           duracaoMinutos: 60,
           fotoUrl: "",
@@ -1423,7 +1387,7 @@ export default function VehicleFormPage() {
                       {resultado.placa} - {resultado.condutor}
                     </div>
                     <div className={styles.resultDetails}>
-                      {resultado.modelo} • Vaga {resultado.vaga}
+                      {resultado.modelo}
                     </div>
                   </div>
                   <button 
@@ -1489,17 +1453,15 @@ export default function VehicleFormPage() {
               </span>
             )}
           </label>
-        </div>
 
-        <div className={styles.formRow}>
           <label>
             Modelo:
             <input type="text" name="modelo" value={form.modelo} onChange={handleChange} required />
           </label>
 
           <label>
-            Marca:
-            <input type="text" name="marca" value={form.marca} onChange={handleChange} required />
+            Cor:
+            <input type="text" name="cor" value={form.cor} onChange={handleChange} required />
           </label>
 
           <label>
@@ -1508,44 +1470,46 @@ export default function VehicleFormPage() {
           </label>
         </div>
 
-        <div className={styles.formRow}>
-          <label>
-            Cor:
-            <input type="text" name="cor" value={form.cor} onChange={handleChange} required />
-          </label>
-
-          <label>
-            Nº Vaga:
-            <input type="text" name="vaga" value={form.vaga} onChange={handleChange} required />
-          </label>
-        </div>
-
         <div className={styles.duracaoAgoraWrapper}>
-          <label>
-            Hora Entrada:
-            <input type="time" name="horaEntrada" value={form.horaEntrada} onChange={handleChange} />
-          </label>
-
           <label>
             Data Entrada:
             <input type="date" name="dataEntrada" value={form.dataEntrada} onChange={handleChange} />
           </label>
 
+          <label>
+            Hora Entrada:
+            <input type="time" name="horaEntrada" value={form.horaEntrada} onChange={handleChange} />
+          </label>
+
           <label className={styles.duracaoLabel}>
             Duração:
             <select name="duracaoMinutos" value={form.duracaoMinutos} onChange={handleChange}>
-              <option value={60}>1 hora {form.tipoContrato === "por_hora" ? "⭐ Recomendado" : ""}</option>
-              <option value={120}>2 horas</option>
-              <option value={240}>4 horas</option>
-              <option value={480}>8 horas</option>
-              <option value={720}>12 horas</option>
-              <option value={1440}>24 horas</option>
-              <option value={43200}>30 dias {form.tipoContrato === "mensalista" ? "⭐ Recomendado" : ""}</option>
+              {form.tipoContrato === "por_hora" ? (
+                // Opções para contratos por hora (máximo 12 horas)
+                <>
+                  <option value={60}>1 hora ⭐ Recomendado</option>
+                  <option value={120}>2 horas</option>
+                  <option value={240}>4 horas</option>
+                  <option value={480}>8 horas</option>
+                  <option value={720}>12 horas</option>
+                </>
+              ) : (
+                // Opções para mensalistas e outros tipos
+                <>
+                  <option value={60}>1 hora</option>
+                  <option value={120}>2 horas</option>
+                  <option value={240}>4 horas</option>
+                  <option value={480}>8 horas</option>
+                  <option value={720}>12 horas</option>
+                  <option value={1440}>24 horas</option>
+                  <option value={43200}>30 dias {form.tipoContrato === "mensalista" ? "⭐ Recomendado" : ""}</option>
+                </>
+              )}
             </select>
             {form.tipoContrato && (
               <small className={styles.duracaoHint}>
                 {form.tipoContrato === "mensalista" && "💡 Mensalistas: Recomendado 30 dias"}
-                {form.tipoContrato === "por_hora" && "💡 Por Hora: Recomendado 1 hora"}
+                {form.tipoContrato === "por_hora" && "💡 Por Hora: Duração limitada a 12 horas máximo"}
               </small>
             )}
           </label>
@@ -1691,8 +1655,8 @@ export default function VehicleFormPage() {
               </label>
             </div>
 
-            <div className={styles.formRow}>
-              <label>
+            <div className={`${styles.formRow} ${styles.compactRow}`}>
+              <label className={styles.telField}>
                 Tel/Cel:
                 <input
                   type="tel"
@@ -1703,20 +1667,7 @@ export default function VehicleFormPage() {
                 />
               </label>
 
-              <label>
-                E-mail:
-                <input
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="usuario@exemplo.com"
-                />
-              </label>
-            </div>
-
-            <div className={styles.formRow}>
-              <label>
+              <label className={styles.profissaoField}>
                 Profissão:
                 <input
                   type="text"
@@ -1727,7 +1678,7 @@ export default function VehicleFormPage() {
                 />
               </label>
 
-              <label>
+              <label className={styles.contratoField}>
                 Tipo de Contrato:
                 <select name="tipoContrato" value={form.tipoContrato} onChange={handleChange}>
                   <option value="mensalista">Mensalista</option>
@@ -1764,8 +1715,6 @@ export default function VehicleFormPage() {
               <th>Placa</th>
               <th>Modelo</th>
               <th>Cor</th>
-              <th>Vaga</th>
-              <th>Hora Entrada</th>
               <th>Data Entrada</th>
               <th>Tempo Permitido</th>
               <th>Tempo<br />Decorrido</th>
@@ -1784,14 +1733,12 @@ export default function VehicleFormPage() {
                 <td className={styles.placaCell}>{exibirPlacaFormatada(v.placa)}</td>
                 <td>{v.modelo}</td>
                 <td>{v.cor}</td>
-                <td>{v.vaga}</td>
-                <td>{v.horaEntrada}</td>
                 <td>{v.dataEntrada}</td>
                 <td className={v.duracaoMinutos === 43200 ? styles.duracaoMensal : ''}>
                   {calcularTempoPermitido(v.duracaoMinutos)}
                 </td>
-                <td className={obterClasseTempoDecorrido(v.dataEntrada, v.horaEntrada)}>
-                  {calcularTempoDecorrido(v.dataEntrada, v.horaEntrada, v.tipoContrato)}
+                <td className={obterClasseTempoDecorrido(v.dataEntrada)}>
+                  {calcularTempoDecorrido(v.dataEntrada, v.tipoContrato)}
                 </td>
                 <td className={obterClasseTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)}>
                   {calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)}
