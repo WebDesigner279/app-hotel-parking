@@ -488,6 +488,7 @@ export default function VehicleFormPage() {
             profissao: "",
             tipoContrato: "mensalista",
             dataEntrada: "",
+            horaEntrada: "",
             duracaoMinutos: 60,
             fotoUrl: "",
           });
@@ -542,6 +543,7 @@ export default function VehicleFormPage() {
               profissao: "",
               tipoContrato: "mensalista",
               dataEntrada: "",
+              horaEntrada: "",
               duracaoMinutos: 60,
               fotoUrl: "",
             });
@@ -578,6 +580,7 @@ export default function VehicleFormPage() {
         profissao: "",
         tipoContrato: "mensalista",
         dataEntrada: "",
+        horaEntrada: "",
         duracaoMinutos: 60,
         fotoUrl: "",
       });
@@ -676,6 +679,7 @@ export default function VehicleFormPage() {
           profissao: "",
           tipoContrato: "mensalista",
           dataEntrada: "",
+          horaEntrada: "",
           duracaoMinutos: 60,
           fotoUrl: "",
         });
@@ -997,6 +1001,7 @@ export default function VehicleFormPage() {
       profissao: "",
       tipoContrato: "mensalista",
       dataEntrada: "",
+      horaEntrada: "",
       duracaoMinutos: 60,
       fotoUrl: "",
     });
@@ -1129,7 +1134,7 @@ export default function VehicleFormPage() {
         v.dataEntrada ? new Date(v.dataEntrada).toLocaleDateString('pt-BR') : '-',
         calcularTempoPermitido(v.duracaoMinutos),
         calcularTempoDecorrido(v.dataEntrada, v.tipoContrato),
-        calcularTempoExcedido(v.dataEntrada, v.duracaoMinutos, v.tipoContrato)
+        calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)
       ]);
 
       // Verificar se cabe na página atual ou precisa de nova página
@@ -1245,6 +1250,7 @@ export default function VehicleFormPage() {
           profissao: "",
           tipoContrato: "mensalista",
           dataEntrada: "",
+          horaEntrada: "",
           duracaoMinutos: 60,
           fotoUrl: "",
         });
