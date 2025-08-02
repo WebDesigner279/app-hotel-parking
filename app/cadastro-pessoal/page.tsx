@@ -119,12 +119,29 @@ export default function CadastroPessoal() {
     }
   };
 
+  // Função para carregar um resultado específico no formulário
+  const carregarResultadoNoFormulario = (resultado: PessoaData) => {
+    setForm(resultado);
+    setPreviewFoto(resultado.fotoUrl);
+    setEditandoId(resultado.id);
+    
+    // Fechar sidebar em mobile para visualizar o formulário
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      setSidebarAberta(false);
+    }
+  };
+
   const handleEditar = (id: string) => {
     const pessoa = pessoas.find(p => p.id === id);
     if (pessoa) {
       setForm(pessoa);
       setEditandoId(id);
       setPreviewFoto(pessoa.fotoUrl || null);
+      
+      // Fechar sidebar em mobile para visualizar o formulário
+      if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+        setSidebarAberta(false);
+      }
     }
   };
 
@@ -209,13 +226,32 @@ export default function CadastroPessoal() {
     }
   };
 
-  const realizarBusca = (termo: string) => {
-    if (!termo.trim()) {
-      setResultadosBusca(pessoas);
+  const realizarBusca = (termo: string, fecharSidebar: boolean = false, carregarNoFormulario: boolean = false) => {
+    // Verificar se é mobile e se o termo está vazio quando acionado pelo botão
+    if (fecharSidebar && !termo.trim() && typeof window !== 'undefined' && window.innerWidth <= 768) {
+      alert("📝 Digite seu critério de busca\n\nVocê pode buscar por:\n• Nome da pessoa\n• Documento (CPF/RG)\n• Telefone\n• Profissão");
       return;
     }
 
     const termoNormalizado = termo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    
+    if (!termoNormalizado) {
+      // Se não há termo de busca, mostrar todas as pessoas
+      setResultadosBusca(pessoas);
+      // Apenas limpar o formulário se estava editando
+      if (editandoId) {
+        setEditandoId(null);
+        setForm(initialFormData);
+        setPreviewFoto(null);
+        
+        // Limpar o input de arquivo
+        const inputFile = document.getElementById('foto-input-galeria') as HTMLInputElement;
+        if (inputFile) {
+          inputFile.value = '';
+        }
+      }
+      return;
+    }
     
     const resultados = pessoas.filter(pessoa => {
       const nome = pessoa.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -229,7 +265,40 @@ export default function CadastroPessoal() {
              profissao.includes(termoNormalizado);
     });
 
+    // Sempre atualizar a tabela com os resultados filtrados
     setResultadosBusca(resultados);
+
+    // Se deve carregar no formulário (botão de busca ou carregamento automático no desktop)
+    if (carregarNoFormulario) {
+      if (resultados.length > 0) {
+        const primeiroResultado = resultados[0];
+        setForm(primeiroResultado);
+        setPreviewFoto(primeiroResultado.fotoUrl);
+        setEditandoId(primeiroResultado.id);
+      } else {
+        // Se não encontrou resultados, mostrar alerta apenas quando acionado pelo botão
+        if (fecharSidebar) {
+          alert(`🔍 Nenhum resultado encontrado para: "${termo}"\n\nTente buscar por:\n• Nome da pessoa\n• Documento (CPF/RG)\n• Telefone\n• Profissão`);
+        }
+        // Limpar formulário se não há resultados e estava carregando automaticamente
+        if (!fecharSidebar && editandoId) {
+          setEditandoId(null);
+          setForm(initialFormData);
+          setPreviewFoto(null);
+          
+          // Limpar o input de arquivo
+          const inputFile = document.getElementById('foto-input-galeria') as HTMLInputElement;
+          if (inputFile) {
+            inputFile.value = '';
+          }
+        }
+      }
+    }
+
+    // Fechar sidebar apenas quando acionado pelo botão de busca (não em tempo real)
+    if (fecharSidebar && typeof window !== 'undefined' && window.innerWidth <= 768) {
+      setSidebarAberta(false);
+    }
   };
 
   const limparBusca = () => {
@@ -349,10 +418,20 @@ export default function CadastroPessoal() {
               value={termoBusca}
               onChange={(e) => {
                 setTermoBusca(e.target.value);
-                realizarBusca(e.target.value);
+                // No mobile, apenas filtrar sem carregar no formulário
+                const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
+                realizarBusca(e.target.value, false, isDesktop);
               }}
               className={styles.searchInput}
             />
+            <button 
+              className={styles.searchBtn} 
+              onClick={() => realizarBusca(termoBusca, true, true)} 
+              title="Buscar"
+            >
+              <span className={styles.searchIcon}>🔍</span>
+              <span className={styles.searchText}>Buscar</span>
+            </button>
           </div>
           {termoBusca && (
             <div className={styles.searchButtons}>
@@ -371,26 +450,26 @@ export default function CadastroPessoal() {
         <div className={styles.statsSection}>
           <h3 className={styles.sectionTitle}>Estatísticas</h3>
           <div className={styles.statCard}>
-            <span className={styles.statIcon}>👥</span>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Total de Pessoas</span>
               <span className={styles.statNumber}>{pessoas.length}</span>
             </div>
           </div>
-          <div className={styles.statCard}>
-            <span className={styles.statIcon}>🔍</span>
-            <div className={styles.statInfo}>
-              <span className={styles.statLabel}>Resultados da Busca</span>
-              <span className={styles.statNumber}>{resultadosBusca.length}</span>
+          {termoBusca && (
+            <div className={styles.statCard}>
+              <div className={styles.statInfo}>
+                <span className={styles.statLabel}>Resultados da Busca</span>
+                <span className={styles.statNumber}>{resultadosBusca.length}</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Seção de ações */}
         <div className={styles.actionsSection}>
           <h3 className={styles.sectionTitle}>Ações</h3>
           <button onClick={excluirTodosDados} className={styles.actionButtonDanger} title="Excluir todos os dados">
-            🗑️ Excluir Todos
+            Excluir Todos
           </button>
         </div>
       </aside>

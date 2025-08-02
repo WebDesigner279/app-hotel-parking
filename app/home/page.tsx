@@ -1251,7 +1251,6 @@ export default function VehicleFormPage() {
         <div className={styles.statsSection}>
           <h3 className={styles.sectionTitle}>Estatísticas</h3>
           <div className={styles.statCard}>
-            <div className={styles.statIcon}>📊</div>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Total de Veículos</span>
               <span className={styles.statNumber}>{typeof window !== 'undefined' ? JSON.parse(localStorage.getItem("veiculos") || "[]").length : 0}</span>
@@ -1259,7 +1258,6 @@ export default function VehicleFormPage() {
           </div>
           {busca && (
             <div className={styles.statCard}>
-              <div className={styles.statIcon}>🔍</div>
               <div className={styles.statInfo}>
                 <span className={styles.statLabel}>Resultados da Busca</span>
                 <span className={styles.statNumber}>{resultados.length}</span>
@@ -1308,10 +1306,10 @@ export default function VehicleFormPage() {
         <div className={styles.actionsSection}>
           <h3 className={styles.sectionTitle}>Ações</h3>
           <button onClick={exportarParaPDF} className={styles.actionButton} title="Exportar dados para PDF">
-            � Exportar PDF
+            Exportar PDF
           </button>
           <button onClick={excluirTodosDados} className={styles.actionButtonDanger} title="Excluir todos os dados">
-            🗑️ Excluir Todos
+            Excluir Todos
           </button>
         </div>
       </aside>
@@ -1523,9 +1521,9 @@ export default function VehicleFormPage() {
           </div>
         </div>
 
-        <div className={styles.buttonGroup}>
+        <div className={styles.formButtons}>
           <button type="submit" className={styles.submitButton}>
-            {editandoId ? "Atualizar" : "Cadastrar"}
+            {editandoId ? "Atualizar Dados" : "Cadastrar Veículo"}
           </button>
           {editandoId && editacaoManual && (
             <button 

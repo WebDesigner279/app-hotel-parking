@@ -208,6 +208,41 @@
   }
 }
 
+.searchBtn {
+  background: linear-gradient(135deg, #2d3c56 0%, #192230 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 50px;
+  display: none; /* Oculto por padrão em desktop/tablet */
+  align-items: center;
+  justify-content: center;
+  
+  /* Por padrão (desktop), mostrar apenas o ícone */
+  .searchIcon {
+    display: inline;
+  }
+  
+  .searchText {
+    display: none;
+  }
+  
+  &:hover {
+    background: linear-gradient(135deg, #192230 0%, #2d3c56 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 34, 48, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 .searchButtons {
   display: flex;
   gap: 0.5rem;
@@ -237,37 +272,41 @@
 .statCard {
   display: flex;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.1);
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.15);
   padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 0.8rem;
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   
   &:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
   }
-}
-
-.statIcon {
-  font-size: 1.5rem;
-  margin-right: 1rem;
 }
 
 .statInfo {
   display: flex;
   flex-direction: column;
+  text-align: center;
+  width: 100%;
 }
 
 .statNumber {
   font-size: 1.8rem;
-  font-weight: bold;
+  font-weight: 700;
   color: white;
+  line-height: 1;
+  order: 2;
 }
 
 .statLabel {
-  font-size: 0.85rem;
-  color: #cbd5e0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 0.9;
+  margin-bottom: 0.3rem;
+  order: 1;
 }
 
 /* Seção de ações */
@@ -847,17 +886,55 @@
       margin-bottom: 1rem;
     }
 
+    .searchSection {
+      .buscaWrapper {
+        input {
+          padding: 0.8rem;
+          font-size: 0.9rem;
+          height: auto;
+          box-sizing: border-box;
+        }
+
+        .searchBtn {
+          padding: 0.8rem;
+          font-size: 0.9rem;
+          min-width: 50px;
+          display: flex; /* Mostrar apenas no mobile */
+          
+          /* No mobile, ocultar o ícone e mostrar o texto */
+          .searchIcon {
+            display: none;
+          }
+          
+          .searchText {
+            display: inline;
+          }
+        }
+
+        .limparBtn {
+          padding: 0.7rem 1.2rem;
+          font-size: 0.9rem;
+          margin-top: 0.5rem;
+          border-radius: 8px;
+        }
+      }
+
+      .searchButtons {
+        .limparBtn {
+          padding: 0.7rem 1.2rem;
+          font-size: 0.9rem;
+          margin-top: 0.5rem;
+          border-radius: 8px;
+        }
+      }
+    }
+
     .statsSection {
       margin-bottom: 1.5rem; /* Reduzido para mobile */
 
       .statCard {
         padding: 1rem;
         margin-bottom: 0.6rem; /* Reduzido para mobile */
-
-        .statIcon {
-          font-size: 1.3rem;
-          margin-right: 1rem;
-        }
 
         .statInfo {
           .statNumber {
@@ -1012,6 +1089,69 @@
       
       .sidebarTitle {
         font-size: 1.3rem;
+      }
+    }
+
+    .searchSection {
+      .buscaWrapper {
+        input {
+          padding: 0.7rem;
+          font-size: 0.85rem;
+          border-radius: 8px;
+        }
+
+        .searchBtn {
+          padding: 0.7rem;
+          font-size: 0.85rem;
+          min-width: 45px;
+          border-radius: 8px;
+          display: flex; /* Mostrar apenas no mobile */
+          
+          /* No mobile pequeno, ocultar o ícone e mostrar o texto */
+          .searchIcon {
+            display: none;
+          }
+          
+          .searchText {
+            display: inline;
+          }
+        }
+
+        .limparBtn {
+          padding: 0.6rem 1rem;
+          font-size: 0.85rem;
+          margin-top: 0.4rem;
+          border-radius: 8px;
+        }
+      }
+
+      .searchButtons {
+        .limparBtn {
+          padding: 0.6rem 1rem;
+          font-size: 0.85rem;
+          margin-top: 0.4rem;
+          border-radius: 8px;
+        }
+      }
+    }
+
+    .statsSection {
+      margin-bottom: 1.5rem;
+
+      .statCard {
+        padding: 0.8rem;
+        margin-bottom: 0.6rem;
+        border-radius: 10px;
+
+        .statInfo {
+          .statNumber {
+            font-size: 1.3rem;
+          }
+
+          .statLabel {
+            font-size: 0.75rem;
+          }
+        }
       }
     }
   }
