@@ -11,15 +11,11 @@ interface PessoaData {
   nome: string;
   documento: string;
   telefone: string;
-  email: string;
   profissao: string;
   fotoUrl: string;
   tipoImovel: string;
   numeroImovel: string;
-  blocoLocal: string;
-  dataCadastro: string;
   tipoContrato: string;
-  horaEntrada: string;
   dataEntrada: string;
 }
 
@@ -28,15 +24,11 @@ const initialFormData: PessoaData = {
   nome: "",
   documento: "",
   telefone: "",
-  email: "",
   profissao: "",
   fotoUrl: "",
   tipoImovel: "nenhum",
   numeroImovel: "",
-  blocoLocal: "",
-  dataCadastro: "",
   tipoContrato: "mensalista",
-  horaEntrada: "",
   dataEntrada: "",
 };
 
@@ -101,9 +93,7 @@ export default function CadastroPessoal() {
     const agora = new Date();
     const formParaSalvar = {
       ...form,
-      dataCadastro: form.dataCadastro || agora.toISOString().split('T')[0],
-      dataEntrada: form.dataEntrada || agora.toISOString().split('T')[0],
-      horaEntrada: form.horaEntrada || agora.toTimeString().slice(0, 5)
+      dataEntrada: form.dataEntrada || agora.toISOString().split('T')[0]
     };
 
     if (editandoId) {
@@ -231,13 +221,11 @@ export default function CadastroPessoal() {
       const nome = pessoa.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       const documento = pessoa.documento.toLowerCase();
       const telefone = pessoa.telefone.toLowerCase();
-      const email = pessoa.email.toLowerCase();
       const profissao = pessoa.profissao.toLowerCase();
       
       return nome.includes(termoNormalizado) ||
              documento.includes(termoNormalizado) ||
              telefone.includes(termoNormalizado) ||
-             email.includes(termoNormalizado) ||
              profissao.includes(termoNormalizado);
     });
 
@@ -427,10 +415,10 @@ export default function CadastroPessoal() {
                 
                 <div className={styles.fotoButtons}>
                   <button type="button" onClick={abrirCamera} className={styles.cameraButton}>
-                    📷 Tirar Foto
+                    Tirar Foto
                   </button>
                   <label htmlFor="foto-input-galeria" className={styles.galeriaButton}>
-                    🖼️ Galeria
+                    Galeria
                     <input
                       id="foto-input-galeria"
                       type="file"
@@ -481,19 +469,6 @@ export default function CadastroPessoal() {
                   </label>
 
                   <label>
-                    E-mail:
-                    <input
-                      type="email"
-                      name="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      placeholder="usuario@exemplo.com"
-                    />
-                  </label>
-                </div>
-
-                <div className={styles.formRow}>
-                  <label>
                     Profissão:
                     <input
                       type="text"
@@ -503,7 +478,9 @@ export default function CadastroPessoal() {
                       placeholder="Ex: Lojista, Contador, etc."
                     />
                   </label>
+                </div>
 
+                <div className={styles.formRow}>
                   <label>
                     Tipo de Imóvel:
                     <select
@@ -512,36 +489,27 @@ export default function CadastroPessoal() {
                       onChange={handleChange}
                     >
                       <option value="nenhum">Nenhum</option>
+                      <option value="casa">Casa</option>
                       <option value="apartamento">Apartamento</option>
-                      <option value="loja">Loja</option>
-                      <option value="escritorio">Escritório</option>
-                      <option value="consultorio">Consultório</option>
-                      <option value="outros">Outros</option>
+                      <option value="quarto">Quarto</option>
+                      <option value="pousada">Pousada</option>
                     </select>
                   </label>
-                </div>
 
-                <div className={styles.formRow}>
                   <label>
                     Número do Imóvel:
-                    <input
-                      type="text"
+                    <select
                       name="numeroImovel"
                       value={form.numeroImovel}
                       onChange={handleChange}
-                      placeholder="Ex: 101, 205, etc."
-                    />
-                  </label>
-
-                  <label>
-                    Bloco/Local:
-                    <input
-                      type="text"
-                      name="blocoLocal"
-                      value={form.blocoLocal}
-                      onChange={handleChange}
-                      placeholder="Ex: Bloco A, Torre 1, etc."
-                    />
+                    >
+                      <option value="">Selecione</option>
+                      {Array.from({ length: 50 }, (_, i) => (
+                        <option key={i + 1} value={(i + 1).toString().padStart(2, '0')}>
+                          {(i + 1).toString().padStart(2, '0')}
+                        </option>
+                      ))}
+                    </select>
                   </label>
                 </div>
 
@@ -566,28 +534,6 @@ export default function CadastroPessoal() {
                       type="date"
                       name="dataEntrada"
                       value={form.dataEntrada}
-                      onChange={handleChange}
-                    />
-                  </label>
-                </div>
-
-                <div className={styles.formRow}>
-                  <label>
-                    Hora de Entrada:
-                    <input
-                      type="time"
-                      name="horaEntrada"
-                      value={form.horaEntrada}
-                      onChange={handleChange}
-                    />
-                  </label>
-
-                  <label>
-                    Data de Cadastro:
-                    <input
-                      type="date"
-                      name="dataCadastro"
-                      value={form.dataCadastro}
                       onChange={handleChange}
                     />
                   </label>
@@ -625,10 +571,10 @@ export default function CadastroPessoal() {
                 />
                 <div className={styles.cameraButtons}>
                   <button onClick={tirarFoto} className={styles.captureButton}>
-                    📸 Capturar
+                    Capturar
                   </button>
                   <button onClick={fecharCamera} className={styles.closeButton}>
-                    ❌ Fechar
+                    Fechar
                   </button>
                 </div>
               </div>
@@ -645,13 +591,10 @@ export default function CadastroPessoal() {
                     <th>Nome</th>
                     <th>Documento</th>
                     <th>Telefone</th>
-                    <th>E-mail</th>
                     <th>Profissão</th>
                     <th>Imóvel</th>
                     <th>Tipo Contrato</th>
                     <th>Data Entrada</th>
-                    <th>Hora Entrada</th>
-                    <th>Data Cadastro</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -668,20 +611,16 @@ export default function CadastroPessoal() {
                       <td>{pessoa.nome}</td>
                       <td>{pessoa.documento}</td>
                       <td>{pessoa.telefone}</td>
-                      <td>{pessoa.email}</td>
                       <td>{pessoa.profissao}</td>
                       <td>
                         {pessoa.tipoImovel !== 'nenhum' && (
                           <span>
                             {pessoa.tipoImovel} {pessoa.numeroImovel}
-                            {pessoa.blocoLocal && ` - ${pessoa.blocoLocal}`}
                           </span>
                         )}
                       </td>
                       <td>{pessoa.tipoContrato}</td>
                       <td>{pessoa.dataEntrada}</td>
-                      <td>{pessoa.horaEntrada}</td>
-                      <td>{pessoa.dataCadastro}</td>
                       <td className={styles.acoesCell}>
                         <button 
                           onClick={() => handleEditar(pessoa.id)} 

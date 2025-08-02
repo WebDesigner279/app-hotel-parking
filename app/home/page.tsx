@@ -55,7 +55,6 @@ export default function VehicleFormPage() {
   const [editacaoManual, setEdicaoManual] = useState(false); // Distingue edição manual da busca automática
   const [tempoAtual, setTempoAtual] = useState(new Date());
   const [sidebarAberta, setSidebarAberta] = useState(false);
-  const [mostrarOpcoesFoto, setMostrarOpcoesFoto] = useState(false);
   const [streamCamera, setStreamCamera] = useState<MediaStream | null>(null);
   const [mostrandoCamera, setMostrandoCamera] = useState(false);
 
@@ -231,165 +230,57 @@ export default function VehicleFormPage() {
   const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validar tipo de arquivo
-      if (!file.type.startsWith('image/')) {
-        alert('Por favor, selecione apenas arquivos de imagem (JPG, PNG, etc.)');
-        return;
-      }
-      
-      // Validar tamanho do arquivo (máximo 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('O arquivo é muito grande. Por favor, selecione uma imagem menor que 5MB.');
-        return;
-      }
-      
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setForm((prev) => ({ ...prev, fotoUrl: result }));
-        setPreviewFoto(result);
-        setMostrarOpcoesFoto(false); // Fechar menu após selecionar
-      };
-      reader.onerror = () => {
-        alert('Erro ao carregar a imagem. Tente novamente.');
+      reader.onload = (event) => {
+        const fotoDataUrl = event.target?.result as string;
+        setForm(prev => ({ ...prev, fotoUrl: fotoDataUrl }));
+        setPreviewFoto(fotoDataUrl);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Função para abrir câmera
   const abrirCamera = async () => {
     try {
-      // Verificar se o navegador suporta getUserMedia
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('📷 Câmera não disponível\n\nSeu navegador não suporta acesso à câmera ou você está acessando via HTTP.\n\nPara usar a câmera, acesse via HTTPS ou use um navegador compatível.');
-        return;
-      }
-
-      // Solicitar permissão para usar a câmera
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user', // Câmera frontal por padrão
-          width: { ideal: 640 },
-          height: { ideal: 480 }
-        }
-      });
-
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       setStreamCamera(stream);
       setMostrandoCamera(true);
-      setMostrarOpcoesFoto(false);
-
-      // Aguardar um pouco para o estado ser atualizado antes de conectar o stream
+      
       setTimeout(() => {
         const videoElement = document.getElementById('camera-preview') as HTMLVideoElement;
         if (videoElement) {
           videoElement.srcObject = stream;
         }
       }, 100);
-
     } catch (error) {
-      console.error('Erro ao acessar a câmera:', error);
-      let mensagemErro = '📷 Erro ao acessar a câmera\n\n';
-      
-      if (error instanceof Error) {
-        if (error.name === 'NotAllowedError') {
-          mensagemErro += 'Permissão negada para acessar a câmera.\n\nPor favor, permita o acesso à câmera e tente novamente.';
-        } else if (error.name === 'NotFoundError') {
-          mensagemErro += 'Nenhuma câmera encontrada no dispositivo.';
-        } else if (error.name === 'NotSupportedError') {
-          mensagemErro += 'Câmera não suportada pelo navegador.';
-        } else {
-          mensagemErro += `Erro: ${error.message}`;
-        }
-      } else {
-        mensagemErro += 'Erro desconhecido ao tentar acessar a câmera.';
-      }
-      
-      alert(mensagemErro);
+      console.error('Erro ao acessar câmera:', error);
+      alert('Erro ao acessar a câmera. Verifique as permissões.');
     }
   };
 
-  // Função para tirar foto
   const tirarFoto = () => {
     const videoElement = document.getElementById('camera-preview') as HTMLVideoElement;
     const canvasElement = document.createElement('canvas');
     const context = canvasElement.getContext('2d');
 
     if (videoElement && context) {
-      // Definir dimensões do canvas baseado no vídeo
       canvasElement.width = videoElement.videoWidth;
       canvasElement.height = videoElement.videoHeight;
-
-      // Desenhar o frame atual do vídeo no canvas
       context.drawImage(videoElement, 0, 0);
-
-      // Converter para base64
       const fotoDataUrl = canvasElement.toDataURL('image/jpeg', 0.8);
-
-      // Salvar a foto
       setForm((prev) => ({ ...prev, fotoUrl: fotoDataUrl }));
       setPreviewFoto(fotoDataUrl);
-
-      // Fechar câmera
       fecharCamera();
-
-      alert('📷 Foto capturada com sucesso!');
     }
   };
 
   // Função para fechar câmera
   const fecharCamera = () => {
     if (streamCamera) {
-      // Parar todas as tracks do stream
       streamCamera.getTracks().forEach(track => track.stop());
       setStreamCamera(null);
     }
     setMostrandoCamera(false);
-  };
-
-  // Função para alternar entre câmera frontal e traseira
-  const alternarCamera = async () => {
-    if (streamCamera) {
-      // Parar stream atual
-      streamCamera.getTracks().forEach(track => track.stop());
-    }
-
-    try {
-      // Detectar qual câmera está sendo usada
-      const videoTrack = streamCamera?.getVideoTracks()[0];
-      const settings = videoTrack?.getSettings();
-      const facingMode = settings?.facingMode === 'user' ? 'environment' : 'user';
-
-      const novoStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: facingMode,
-          width: { ideal: 640 },
-          height: { ideal: 480 }
-        }
-      });
-
-      setStreamCamera(novoStream);
-
-      setTimeout(() => {
-        const videoElement = document.getElementById('camera-preview') as HTMLVideoElement;
-        if (videoElement) {
-          videoElement.srcObject = novoStream;
-        }
-      }, 100);
-
-    } catch (error) {
-      console.error('Erro ao alternar câmera:', error);
-      alert('Erro ao alternar entre as câmeras. Usando câmera atual.');
-    }
-  };
-
-  // Função para abrir galeria
-  const abrirGaleria = () => {
-    const inputFile = document.getElementById('foto-input-galeria') as HTMLInputElement;
-    if (inputFile) {
-      inputFile.click();
-    }
-    setMostrarOpcoesFoto(false);
   };
 
   const salvarDados = (dados: VehicleData[]) => {
@@ -1031,7 +922,6 @@ export default function VehicleFormPage() {
   const removerFoto = () => {
     setForm(prev => ({ ...prev, fotoUrl: "" }));
     setPreviewFoto(null);
-    setMostrarOpcoesFoto(false);
     
     // Limpar o input de arquivo
     const inputFile = document.getElementById('foto-input-galeria') as HTMLInputElement;
@@ -1527,109 +1417,47 @@ export default function VehicleFormPage() {
         <div className={styles.fotoNomeGrupo}>
           <div className={styles.fotoPreview}>
             {previewFoto ? (
-              <div className={styles.fotoContainer}>
-                <img src={previewFoto} alt="Foto 3x4" />
-                <button 
-                  type="button" 
-                  className={styles.removerFoto} 
-                  onClick={removerFoto}
-                  title="Remover foto"
-                >
-                  ❌
-                </button>
-              </div>
+              <img src={previewFoto} alt="Preview" className={styles.previewImage} />
             ) : (
-              <div className={styles.fotoPlaceholder}>Foto 3x4</div>
+              <div className={styles.placeholderFoto}>
+                <span>📷</span>
+                <p>Foto da Pessoa</p>
+              </div>
             )}
-
-            {/* Botão principal da foto */}
-            <div className={styles.fotoButtonContainer}>
-              <button 
-                type="button"
-                className={styles.fotoButton}
-                onClick={() => setMostrarOpcoesFoto(!mostrarOpcoesFoto)}
-              >
-                📷 {previewFoto ? 'Alterar Foto' : 'Inserir Foto'}
+            
+            <div className={styles.fotoButtons}>
+              <button type="button" onClick={abrirCamera} className={styles.cameraButton}>
+                Tirar Foto
               </button>
-
-              {/* Menu de opções da foto */}
-              {mostrarOpcoesFoto && (
-                <div className={styles.fotoOptions}>
-                  <button
-                    type="button"
-                    className={styles.fotoOptionBtn}
-                    onClick={abrirCamera}
-                  >
-                    Tirar Foto
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.fotoOptionBtn}
-                    onClick={abrirGaleria}
-                  >
-                    Galeria
-                  </button>
-                </div>
-              )}
+              <label htmlFor="foto-input-galeria" className={styles.galeriaButton}>
+                Galeria
+                <input
+                  id="foto-input-galeria"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFotoChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
             </div>
-
-            {/* Input oculto para galeria */}
-            <input
-              id="foto-input-galeria"
-              type="file"
-              accept="image/*,image/jpeg,image/jpg,image/png,image/gif,image/webp"
-              onChange={handleFotoChange}
-              style={{ display: 'none' }}
-            />
           </div>
 
           {/* Modal da câmera */}
           {mostrandoCamera && (
             <div className={styles.cameraModal}>
-              <div className={styles.cameraContainer}>
-                <div className={styles.cameraHeader}>
-                  <h3>📷 Tirar Foto</h3>
-                  <button
-                    type="button"
-                    className={styles.fecharCamera}
-                    onClick={fecharCamera}
-                  >
-                    ❌
+              <div className={styles.cameraContent}>
+                <video
+                  id="camera-preview"
+                  autoPlay
+                  playsInline
+                  className={styles.cameraVideo}
+                />
+                <div className={styles.cameraButtons}>
+                  <button onClick={tirarFoto} className={styles.captureButton}>
+                    Capturar
                   </button>
-                </div>
-                
-                <div className={styles.cameraPreview}>
-                  <video
-                    id="camera-preview"
-                    autoPlay
-                    playsInline
-                    muted
-                    className={styles.videoPreview}
-                  />
-                </div>
-                
-                <div className={styles.cameraControls}>
-                  <button
-                    type="button"
-                    className={styles.alternarCameraBtn}
-                    onClick={alternarCamera}
-                    title="Alternar câmera"
-                  >
-                    🔄
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.tirarFotoBtn}
-                    onClick={tirarFoto}
-                  >
-                    📸 Capturar
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.cancelarCameraBtn}
-                    onClick={fecharCamera}
-                  >
-                    ❌ Cancelar
+                  <button onClick={fecharCamera} className={styles.closeButton}>
+                    Fechar
                   </button>
                 </div>
               </div>
