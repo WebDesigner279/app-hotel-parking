@@ -532,6 +532,31 @@
         border-color: #cbd5e0;
       }
     }
+
+    // Estilos específicos para inputs de date para garantir consistência
+    input[type="date"] {
+      margin-top: 0.4rem;
+      padding: 0 12px;
+      height: 40px;
+      box-sizing: border-box;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      background-color: white;
+      width: 100%;
+
+      &:focus {
+        outline: none;
+        border-color: #192230;
+        box-shadow: 0 0 0 3px rgba(25, 34, 48, 0.1);
+        transform: translateY(-1px);
+      }
+
+      &:hover {
+        border-color: #cbd5e0;
+      }
+    }
   }
 }
 
@@ -1012,6 +1037,18 @@
             padding: 0 10px !important;
             height: 40px !important;
             box-sizing: border-box !important;
+            width: 100% !important;
+          }
+
+          input[type="date"] {
+            font-size: 0.9rem !important;
+            padding: 0 10px !important;
+            height: 40px !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 6px !important;
+            background-color: white !important;
           }
         }
       }
