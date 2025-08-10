@@ -50,7 +50,7 @@ export default function Contato() {
               onClick={closeSidebar}
             >
               <FaHome className={styles.navIcon} />
-              <span>Sistema Principal</span>
+              <span>Controle de Acesso</span>
             </Link>
             <Link 
               href="/cadastro-pessoal" 
@@ -58,7 +58,7 @@ export default function Contato() {
               onClick={closeSidebar}
             >
               <FaUser className={styles.navIcon} />
-              <span>Cadastro Pessoal</span>
+              <span>Cadastrar Hóspede</span>
             </Link>
             <Link 
               href="/sobre" 

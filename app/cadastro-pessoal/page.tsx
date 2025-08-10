@@ -379,7 +379,7 @@ export default function CadastroPessoal() {
               onClick={fecharSidebar}
             >
               <FaHome className={styles.navIcon} />
-              <span>Sistema Principal</span>
+              <span>Controle de Acesso</span>
             </Link>
             <Link 
               href="/cadastro-pessoal" 
@@ -387,7 +387,7 @@ export default function CadastroPessoal() {
               onClick={fecharSidebar}
             >
               <FaUser className={styles.navIcon} />
-              <span>Cadastro Pessoal</span>
+              <span>Cadastrar Hóspede</span>
             </Link>
             <Link 
               href="/sobre" 
@@ -410,7 +410,7 @@ export default function CadastroPessoal() {
 
         {/* Seção de busca */}
         <div className={styles.searchSection}>
-          <h3 className={styles.sectionTitle}>Buscar Pessoa</h3>
+          <h3 className={styles.sectionTitle}>Buscar</h3>
           <div className={styles.buscaWrapper}>
             <input
               type="text"
@@ -477,7 +477,7 @@ export default function CadastroPessoal() {
       {/* Conteúdo principal */}
       <main className={styles.mainContent}>
         <div className={styles.container}>
-          <h1 className={styles.title}>Cadastro de Pessoas</h1>
+          <h1 className={styles.title}>Cadastro de Hóspede</h1>
           
           <form onSubmit={handleSubmit} className={styles.form}>
             {/* Seção de foto */}
@@ -508,7 +508,7 @@ export default function CadastroPessoal() {
                   </label>
                 </div>
               </div>
-
+            
               {/* Dados pessoais */}
               <div className={styles.dadosPessoais}>
                 <div className={styles.formRow}>

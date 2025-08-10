@@ -22,10 +22,14 @@ interface VehicleData {
   telefone: string;
   profissao: string;
   tipoContrato: string;
+  localEstacionamento: string;
   dataEntrada: string;
   horaEntrada: string;
   duracaoMinutos: number;
   fotoUrl: string;
+  fotoDocumentoVeiculoUrl?: string;
+  fotoCnhUrl?: string;
+  fotoComprovanteEnderecoUrl?: string;
 }
 
 export default function VehicleFormPage() {
@@ -42,13 +46,21 @@ export default function VehicleFormPage() {
     telefone: "",
     profissao: "",
     tipoContrato: "mensalista",
+    localEstacionamento: "",
     dataEntrada: "",
     horaEntrada: "",
     duracaoMinutos: 60,
     fotoUrl: "",
+    fotoDocumentoVeiculoUrl: "",
+    fotoCnhUrl: "",
+    fotoComprovanteEnderecoUrl: "",
   });
 
   const [previewFoto, setPreviewFoto] = useState<string | null>(null);
+  const [previewFotoDocumentoVeiculo, setPreviewFotoDocumentoVeiculo] = useState<string | null>(null);
+  const [previewFotoCnh, setPreviewFotoCnh] = useState<string | null>(null);
+  const [previewFotoComprovanteEndereco, setPreviewFotoComprovanteEndereco] = useState<string | null>(null);
+  const [fotoAmpliada, setFotoAmpliada] = useState<string | null>(null);
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState<VehicleData[]>([]);
   const [editandoId, setEditandoId] = useState<string | null>(null);
@@ -56,7 +68,7 @@ export default function VehicleFormPage() {
   const [tempoAtual, setTempoAtual] = useState(new Date());
   const [sidebarAberta, setSidebarAberta] = useState(false);
   const [streamCamera, setStreamCamera] = useState<MediaStream | null>(null);
-  const [mostrandoCamera, setMostrandoCamera] = useState(false);
+  const [mostrandoCamera, setMostrandoCamera] = useState<false | 'pessoa' | 'documentoVeiculo'>(false);
 
   useEffect(() => {
     carregarDados();
@@ -244,7 +256,7 @@ export default function VehicleFormPage() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       setStreamCamera(stream);
-      setMostrandoCamera(true);
+      setMostrandoCamera('pessoa');
       
       setTimeout(() => {
         const videoElement = document.getElementById('camera-preview') as HTMLVideoElement;
@@ -281,6 +293,108 @@ export default function VehicleFormPage() {
       setStreamCamera(null);
     }
     setMostrandoCamera(false);
+  };
+
+  // Função utilitária para verificar se é PDF
+  const isPDF = (file: File) => {
+    return file.type === 'application/pdf';
+  };
+
+  // Função para verificar se uma URL é PDF
+  const isPDFUrl = (url: string) => {
+    return url && (url.startsWith('blob:') || url.includes('.pdf') || url.startsWith('data:application/pdf'));
+  };
+
+  // Funções para foto do documento do veículo
+  const handleFotoDocumentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (isPDF(file)) {
+        // Para PDFs, salvar como URL de objeto
+        const pdfUrl = URL.createObjectURL(file);
+        setForm(prev => ({ ...prev, fotoDocumentoVeiculoUrl: pdfUrl }));
+        setPreviewFotoDocumentoVeiculo(pdfUrl);
+      } else {
+        // Para imagens, converter para base64
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const fotoDataUrl = event.target?.result as string;
+          setForm(prev => ({ ...prev, fotoDocumentoVeiculoUrl: fotoDataUrl }));
+          setPreviewFotoDocumentoVeiculo(fotoDataUrl);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  // Função para ampliar foto do documento
+  const ampliarFotoDocumento = () => {
+    if (previewFotoDocumentoVeiculo) {
+      setFotoAmpliada(previewFotoDocumentoVeiculo);
+    }
+  };
+
+  // Funções para foto da CNH
+  const handleFotoCnhChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (isPDF(file)) {
+        // Para PDFs, salvar como URL de objeto
+        const pdfUrl = URL.createObjectURL(file);
+        setForm(prev => ({ ...prev, fotoCnhUrl: pdfUrl }));
+        setPreviewFotoCnh(pdfUrl);
+      } else {
+        // Para imagens, converter para base64
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const fotoDataUrl = event.target?.result as string;
+          setForm(prev => ({ ...prev, fotoCnhUrl: fotoDataUrl }));
+          setPreviewFotoCnh(fotoDataUrl);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  // Função para ampliar foto da CNH
+  const ampliarFotoCnh = () => {
+    if (previewFotoCnh) {
+      setFotoAmpliada(previewFotoCnh);
+    }
+  };
+
+  // Funções para foto do comprovante de endereço
+  const handleFotoComprovanteEnderecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (isPDF(file)) {
+        // Para PDFs, salvar como URL de objeto
+        const pdfUrl = URL.createObjectURL(file);
+        setForm(prev => ({ ...prev, fotoComprovanteEnderecoUrl: pdfUrl }));
+        setPreviewFotoComprovanteEndereco(pdfUrl);
+      } else {
+        // Para imagens, converter para base64
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const fotoDataUrl = event.target?.result as string;
+          setForm(prev => ({ ...prev, fotoComprovanteEnderecoUrl: fotoDataUrl }));
+          setPreviewFotoComprovanteEndereco(fotoDataUrl);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  // Função para ampliar foto do comprovante de endereço
+  const ampliarFotoComprovanteEndereco = () => {
+    if (previewFotoComprovanteEndereco) {
+      setFotoAmpliada(previewFotoComprovanteEndereco);
+    }
+  };
+
+  // Função para fechar foto ampliada
+  const fecharFotoAmpliada = () => {
+    setFotoAmpliada(null);
   };
 
   const salvarDados = (dados: VehicleData[]) => {
@@ -330,14 +444,21 @@ export default function VehicleFormPage() {
       telefone: "",
       profissao: "",
       tipoContrato: "mensalista",
+      localEstacionamento: "",
       dataEntrada: "",
       horaEntrada: "",
       duracaoMinutos: 60,
       fotoUrl: "",
+      fotoDocumentoVeiculoUrl: "",
+      fotoCnhUrl: "",
+      fotoComprovanteEnderecoUrl: "",
     });
     setEditandoId(null);
     setEdicaoManual(false);
     setPreviewFoto(null);
+    setPreviewFotoDocumentoVeiculo(null);
+    setPreviewFotoCnh(null);
+    setPreviewFotoComprovanteEndereco(null);
     
     // Limpar o input de arquivo
     const inputFile = document.getElementById('foto-input-galeria') as HTMLInputElement;
@@ -378,6 +499,7 @@ export default function VehicleFormPage() {
             telefone: "",
             profissao: "",
             tipoContrato: "mensalista",
+            localEstacionamento: "",
             dataEntrada: "",
             horaEntrada: "",
             duracaoMinutos: 60,
@@ -433,12 +555,19 @@ export default function VehicleFormPage() {
               telefone: "",
               profissao: "",
               tipoContrato: "mensalista",
+              localEstacionamento: "",
               dataEntrada: "",
               horaEntrada: "",
               duracaoMinutos: 60,
               fotoUrl: "",
+              fotoDocumentoVeiculoUrl: "",
+              fotoCnhUrl: "",
+              fotoComprovanteEnderecoUrl: "",
             });
             setPreviewFoto(null);
+            setPreviewFotoDocumentoVeiculo(null);
+            setPreviewFotoCnh(null);
+            setPreviewFotoComprovanteEndereco(null);
           }
         }
       }
@@ -470,12 +599,19 @@ export default function VehicleFormPage() {
         telefone: "",
         profissao: "",
         tipoContrato: "mensalista",
+        localEstacionamento: "",
         dataEntrada: "",
         horaEntrada: "",
         duracaoMinutos: 60,
         fotoUrl: "",
+        fotoDocumentoVeiculoUrl: "",
+        fotoCnhUrl: "",
+        fotoComprovanteEnderecoUrl: "",
       });
       setPreviewFoto(null);
+      setPreviewFotoDocumentoVeiculo(null);
+      setPreviewFotoCnh(null);
+      setPreviewFotoComprovanteEndereco(null);
       
       // Limpar o input de arquivo
       const inputFile = document.getElementById('foto-input') as HTMLInputElement;
@@ -489,6 +625,17 @@ export default function VehicleFormPage() {
     if (typeof window !== 'undefined' && window.innerWidth <= 768 && !sidebarAberta) {
       setSidebarAberta(true);
     }
+  };
+
+  // Função específica para carregar dados completos com anexos
+  const carregarDadosCompletos = () => {
+    if (!busca.trim()) {
+      alert("📝 Digite um termo de busca primeiro");
+      return;
+    }
+
+    // Forçar carregamento completo no formulário
+    realizarBusca(busca, true, true);
   };
 
   const handleBuscaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -506,6 +653,9 @@ export default function VehicleFormPage() {
   const carregarResultadoNoFormulario = (resultado: VehicleData) => {
     setForm(resultado);
     setPreviewFoto(resultado.fotoUrl);
+    setPreviewFotoDocumentoVeiculo(resultado.fotoDocumentoVeiculoUrl || null);
+    setPreviewFotoCnh(resultado.fotoCnhUrl || null);
+    setPreviewFotoComprovanteEndereco(resultado.fotoComprovanteEnderecoUrl || null);
     setEditandoId(resultado.id);
     setEdicaoManual(true); // Edição manual explícita
     
@@ -520,6 +670,9 @@ export default function VehicleFormPage() {
     if (encontrado) {
       setForm(encontrado);
       setPreviewFoto(encontrado.fotoUrl);
+      setPreviewFotoDocumentoVeiculo(encontrado.fotoDocumentoVeiculoUrl || null);
+      setPreviewFotoCnh(encontrado.fotoCnhUrl || null);
+      setPreviewFotoComprovanteEndereco(encontrado.fotoComprovanteEnderecoUrl || null);
       setEditandoId(id);
       setEdicaoManual(true); // Edição manual explícita
     }
@@ -569,6 +722,7 @@ export default function VehicleFormPage() {
           telefone: "",
           profissao: "",
           tipoContrato: "mensalista",
+          localEstacionamento: "",
           dataEntrada: "",
           horaEntrada: "",
           duracaoMinutos: 60,
@@ -877,33 +1031,50 @@ export default function VehicleFormPage() {
   };
 
   const handleCancelarEdicao = () => {
-    setEditandoId(null);
-    setEdicaoManual(false);
-    setForm({
-      id: "",
-      tipo: "carro",
-      placa: "",
-      modelo: "",
-      ano: "",
-      cor: "",
-      condutor: "",
-      documento: "",
-      telefone: "",
-      profissao: "",
-      tipoContrato: "mensalista",
-      dataEntrada: "",
-      horaEntrada: "",
-      duracaoMinutos: 60,
-      fotoUrl: "",
-    });
-    setPreviewFoto(null);
     setBusca("");
     carregarDados();
     
-    // Limpar o input de arquivo
-    const inputFile = document.getElementById('foto-input-galeria') as HTMLInputElement;
-    if (inputFile) {
-      inputFile.value = '';
+    // Se estiver editando devido a uma busca, limpar o formulário também (mas sem recursão)
+    if (editandoId) {
+      setEditandoId(null);
+      setEdicaoManual(false);
+      setForm({
+        id: "",
+        tipo: "carro",
+        placa: "",
+        modelo: "",
+        ano: "",
+        cor: "",
+        condutor: "",
+        documento: "",
+        telefone: "",
+        profissao: "",
+        tipoContrato: "mensalista",
+        localEstacionamento: "",
+        dataEntrada: "",
+        horaEntrada: "",
+        duracaoMinutos: 60,
+        fotoUrl: "",
+        fotoDocumentoVeiculoUrl: "",
+        fotoCnhUrl: "",
+        fotoComprovanteEnderecoUrl: "",
+      });
+      setPreviewFoto(null);
+      setPreviewFotoDocumentoVeiculo(null);
+      setPreviewFotoCnh(null);
+      setPreviewFotoComprovanteEndereco(null);
+      
+      // Limpar o input de arquivo
+      const inputFile = document.getElementById('foto-input') as HTMLInputElement;
+      if (inputFile) {
+        inputFile.value = '';
+      }
+    }
+
+    // Garantir que o sidebar permaneça aberto após limpar a busca
+    // Especialmente útil em dispositivos mobile onde o sidebar pode ter sido fechado durante a busca
+    if (typeof window !== 'undefined' && window.innerWidth <= 768 && !sidebarAberta) {
+      setSidebarAberta(true);
     }
   };
 
@@ -950,127 +1121,88 @@ export default function VehicleFormPage() {
       const dataAtual = new Date().toLocaleString('pt-BR');
       doc.text(`Gerado em: ${dataAtual}`, pageWidth / 2, 25, { align: 'center' });
       
-      // Primeira tabela - Dados principais
-      const colunasPrincipais = [
-        'Tipo', 'Placa', 'Modelo', 'Cor', 'Condutor', 
-        'Documento', 'Telefone', 'Tipo Contrato'
+      // Tabela única com dados essenciais na sequência solicitada
+      const colunas = [
+        'Condutor', 'Placa', 'Tipo', 'Modelo', 'Data Entrada', 
+        'Hora Entrada', 'Local', 'Tempo Permitido', 'Status'
       ];
 
-      const linhasPrincipais = resultados.map(v => [
-        v.tipo,
-        v.placa,
-        v.modelo || '-',
-        v.cor || '-',
-        (v.condutor || '-').length > 20 ? (v.condutor || '-').substring(0, 20) + '...' : (v.condutor || '-'),
-        v.documento || '-',
-        v.telefone || '-',
-        v.tipoContrato === 'mensalista' ? 'Mensalista' : 'Por Hora'
-      ]);
+      const linhas = resultados.map(v => {
+        const tempoExcedido = calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato);
+        let status = 'Normal';
+        if (tempoExcedido.includes('Dentro do prazo')) {
+          status = 'OK';
+        } else if (tempoExcedido !== 'Dentro do prazo' && tempoExcedido !== 'Aguardando início') {
+          status = 'Excedido';
+        } else if (tempoExcedido.includes('Aguardando')) {
+          status = 'Agendado';
+        }
 
-      // Gerar primeira tabela
-      autoTable(doc, {
-        head: [colunasPrincipais],
-        body: linhasPrincipais,
-        startY: 35,
-        styles: {
-          fontSize: 8,
-          cellPadding: 3,
-          overflow: 'linebreak',
-          halign: 'center',
-          valign: 'middle',
-        },
-        headStyles: {
-          fillColor: [25, 34, 48],
-          textColor: [255, 255, 255],
-          fontStyle: 'bold',
-          fontSize: 9,
-          halign: 'center',
-        },
-        alternateRowStyles: {
-          fillColor: [248, 249, 250],
-        },
-        columnStyles: {
-          0: { cellWidth: 20 }, // Tipo
-          1: { cellWidth: 25 }, // Placa
-          2: { cellWidth: 35 }, // Modelo
-          3: { cellWidth: 20 }, // Cor
-          4: { cellWidth: 40 }, // Condutor
-          5: { cellWidth: 30 }, // Documento
-          6: { cellWidth: 30 }, // Telefone
-          7: { cellWidth: 25 }, // Tipo Contrato
-        },
-        margin: { top: 35, right: 15, bottom: 20, left: 15 },
-        tableWidth: 'auto',
-        didDrawPage: (data) => {
-          // Adicionar título da seção
-          if (data.pageNumber === 1) {
-            doc.setFontSize(12);
-            doc.text('Dados Principais dos Veículos', 15, data.settings.startY - 10);
-          }
-        },
+        return [
+          v.condutor.length > 20 ? v.condutor.substring(0, 20) + '...' : v.condutor,
+          v.placa,
+          v.tipo.charAt(0).toUpperCase() + v.tipo.slice(1),
+          v.modelo.length > 16 ? v.modelo.substring(0, 16) + '...' : v.modelo,
+          v.dataEntrada ? new Date(v.dataEntrada).toLocaleDateString('pt-BR') : '-',
+          v.horaEntrada || '-',
+          v.localEstacionamento.length > 14 ? v.localEstacionamento.substring(0, 14) + '...' : v.localEstacionamento || '-',
+          formatarDuracao(v.duracaoMinutos),
+          status
+        ];
       });
 
-      // Calcular posição para segunda tabela
-      const finalY = (doc as any).lastAutoTable.finalY || 100;
-      
-      // Segunda tabela - Dados de tempo
-      const colunasTempos = [
-        'Placa', 'Data Entrada', 'Tempo Permitido', 
-        'Tempo Decorrido', 'Tempo Excedido'
-      ];
-
-      const linhasTempos = resultados.map(v => [
-        v.placa,
-        v.dataEntrada ? new Date(v.dataEntrada).toLocaleDateString('pt-BR') : '-',
-        calcularTempoPermitido(v.duracaoMinutos),
-        calcularTempoDecorrido(v.dataEntrada, v.tipoContrato),
-        calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato)
-      ]);
-
-      // Verificar se cabe na página atual ou precisa de nova página
-      const espacoRestante = pageHeight - finalY - 40;
-      const alturaEstimada = (linhasTempos.length + 2) * 8; // Estimativa de altura
-      
-      if (alturaEstimada > espacoRestante) {
-        doc.addPage();
-      }
-
-      // Gerar segunda tabela
+      // Gerar tabela única
       autoTable(doc, {
-        head: [colunasTempos],
-        body: linhasTempos,
-        startY: alturaEstimada > espacoRestante ? 30 : finalY + 20,
+        head: [colunas],
+        body: linhas,
+        startY: 35,
         styles: {
-          fontSize: 8,
-          cellPadding: 3,
-          overflow: 'linebreak',
+          fontSize: 9,
+          cellPadding: 2,
+          overflow: 'ellipsis',
           halign: 'center',
           valign: 'middle',
+          lineColor: [200, 200, 200],
+          lineWidth: 0.1,
         },
         headStyles: {
           fillColor: [25, 34, 48],
           textColor: [255, 255, 255],
           fontStyle: 'bold',
-          fontSize: 9,
+          fontSize: 10,
           halign: 'center',
         },
         alternateRowStyles: {
           fillColor: [248, 249, 250],
         },
         columnStyles: {
-          0: { cellWidth: 25 }, // Placa
-          1: { cellWidth: 30 }, // Data Entrada
-          2: { cellWidth: 25 }, // Hora Entrada
-          3: { cellWidth: 35 }, // Tempo Permitido
-          4: { cellWidth: 35 }, // Tempo Decorrido
-          5: { cellWidth: 35 }, // Tempo Excedido
+          0: { cellWidth: 50, halign: 'center' }, // Condutor
+          1: { cellWidth: 25, halign: 'center' }, // Placa
+          2: { cellWidth: 20, halign: 'center' }, // Tipo
+          3: { cellWidth: 40, halign: 'center' }, // Modelo
+          4: { cellWidth: 25, halign: 'center' }, // Data Entrada
+          5: { cellWidth: 25, halign: 'center' }, // Hora Entrada
+          6: { cellWidth: 30, halign: 'center' }, // Local
+          7: { cellWidth: 30, halign: 'center' }, // Tempo Permitido
+          8: { cellWidth: 25, halign: 'center' }, // Status
         },
-        margin: { top: 30, right: 15, bottom: 20, left: 15 },
+        margin: { top: 35, right: 10, bottom: 20, left: 10 },
         tableWidth: 'auto',
-        didDrawPage: (data) => {
-          // Adicionar título da seção
-          doc.setFontSize(12);
-          doc.text('Controle de Tempo', 15, data.settings.startY - 10);
+        didDrawCell: (data) => {
+          // Colorir células de status
+          if (data.column.index === 8 && data.section === 'body') {
+            const status = data.cell.text[0];
+            if (status === 'Excedido') {
+              data.cell.styles.fillColor = [255, 235, 238]; // Vermelho claro
+              data.cell.styles.textColor = [196, 48, 43]; // Vermelho escuro
+            } else if (status === 'OK') {
+              data.cell.styles.fillColor = [236, 253, 245]; // Verde claro
+              data.cell.styles.textColor = [5, 150, 105]; // Verde escuro
+            } else if (status === 'Agendado') {
+              data.cell.styles.fillColor = [254, 249, 195]; // Amarelo claro
+              data.cell.styles.textColor = [146, 64, 14]; // Laranja escuro
+            }
+          }
         },
       });
 
@@ -1088,7 +1220,7 @@ export default function VehicleFormPage() {
       const nomeArquivo = `veiculos_${new Date().toISOString().split('T')[0]}.pdf`;
       doc.save(nomeArquivo);
 
-      alert(`✅ Dados exportados com sucesso!\\n\\nArquivo: ${nomeArquivo}\\nTotal de registros: ${resultados.length}\\n\\nO relatório foi dividido em duas seções:\\n• Dados Principais dos Veículos\\n• Controle de Tempo`);
+      alert(`✅ Dados exportados com sucesso!\n\nArquivo: ${nomeArquivo}\nTotal de registros: ${resultados.length}\n\nRelatório resumido com dados essenciais gerado.`);
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       alert('❌ Erro ao gerar o arquivo PDF. Tente novamente.');
@@ -1139,6 +1271,7 @@ export default function VehicleFormPage() {
           telefone: "",
           profissao: "",
           tipoContrato: "mensalista",
+          localEstacionamento: "",
           dataEntrada: "",
           horaEntrada: "",
           duracaoMinutos: 60,
@@ -1190,7 +1323,7 @@ export default function VehicleFormPage() {
               onClick={fecharSidebar}
             >
               <FaHome className={styles.navIcon} />
-              <span>Sistema Principal</span>
+                <span>Controle de Acesso</span>
             </Link>
             <Link 
               href="/cadastro-pessoal" 
@@ -1198,7 +1331,7 @@ export default function VehicleFormPage() {
               onClick={fecharSidebar}
             >
               <FaUser className={styles.navIcon} />
-              <span>Cadastro Pessoal</span>
+                <span>Cadastrar Hóspede</span>
             </Link>
             <Link 
               href="/sobre" 
@@ -1221,7 +1354,7 @@ export default function VehicleFormPage() {
 
         {/* Seção de busca */}
         <div className={styles.searchSection}>
-          <h3 className={styles.sectionTitle}>Buscar Veículo</h3>
+          <h3 className={styles.sectionTitle}>Buscar</h3>
           <div className={styles.buscaWrapper}>
             <input
               type="text"
@@ -1232,9 +1365,9 @@ export default function VehicleFormPage() {
             <button 
               className={styles.searchBtn} 
               onClick={() => realizarBusca(busca, true, true)} 
-              title="Buscar"
+              title="Buscar e carregar dados completos"
             >
-              <span className={styles.searchIcon}>🔍</span>
+              <span className={styles.searchIcon}>�</span>
               <span className={styles.searchText}>Buscar</span>
             </button>
           </div>
@@ -1364,7 +1497,201 @@ export default function VehicleFormPage() {
           </label>
         </div>
 
+        {/* Seção para documentos */}
+        <div className={styles.documentosSection}>
+          <h3 className={styles.sectionTitle}>Documentos</h3>
+          <div className={styles.documentosContainer}>
+            {/* Documento do Veículo */}
+            <div className={styles.documentoItem}>
+              <h4 className={styles.documentoTitulo}>Documento do Veículo</h4>
+              <label htmlFor="foto-input-documento" className={styles.fotoPreview} style={{ cursor: 'pointer' }}>
+                {previewFotoDocumentoVeiculo ? (
+                  editandoId ? (
+                    // Modo de visualização quando editando (busca)
+                    <div className={styles.documentoVisualizacao} onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      ampliarFotoDocumento();
+                    }}>
+                      <span className={styles.documentoIcon}>📄</span>
+                      <p>Documento Anexado</p>
+                      <small>Clique aqui para visualizar</small>
+                    </div>
+                  ) : (
+                    // Modo de preview normal
+                    isPDFUrl(previewFotoDocumentoVeiculo) ? (
+                      <div className={styles.pdfPreview} onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        ampliarFotoDocumento();
+                      }}>
+                        <span className={styles.pdfIcon}>📄</span>
+                        <p>Documento PDF</p>
+                        <small>Clique para visualizar</small>
+                      </div>
+                    ) : (
+                      <img 
+                        src={previewFotoDocumentoVeiculo} 
+                        alt="Documento do Veículo" 
+                        className={styles.previewImage}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          ampliarFotoDocumento();
+                        }}
+                        style={{ cursor: 'pointer' }}
+                        title="Clique para ampliar"
+                      />
+                    )
+                  )
+                ) : (
+                  <div className={styles.placeholderFoto}>
+                    <span>📄</span>
+                    <p>Clique para anexar documento (IMG/PDF)</p>
+                  </div>
+                )}
+                <input
+                  id="foto-input-documento"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleFotoDocumentoChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            </div>
+
+            {/* CNH */}
+            <div className={styles.documentoItem}>
+              <h4 className={styles.documentoTitulo}>CNH</h4>
+              <label htmlFor="foto-input-cnh" className={styles.fotoPreview} style={{ cursor: 'pointer' }}>
+                {previewFotoCnh ? (
+                  editandoId ? (
+                    // Modo de visualização quando editando (busca)
+                    <div className={styles.documentoVisualizacao} onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      ampliarFotoCnh();
+                    }}>
+                      <span className={styles.documentoIcon}>🆔</span>
+                      <p>CNH Anexada</p>
+                      <small>Clique aqui para visualizar</small>
+                    </div>
+                  ) : (
+                    // Modo de preview normal
+                    isPDFUrl(previewFotoCnh) ? (
+                      <div className={styles.pdfPreview} onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        ampliarFotoCnh();
+                      }}>
+                        <span className={styles.pdfIcon}>🆔</span>
+                        <p>CNH PDF</p>
+                        <small>Clique para visualizar</small>
+                      </div>
+                    ) : (
+                      <img 
+                        src={previewFotoCnh} 
+                        alt="CNH" 
+                        className={styles.previewImage}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          ampliarFotoCnh();
+                        }}
+                        style={{ cursor: 'pointer' }}
+                        title="Clique para ampliar"
+                      />
+                    )
+                  )
+                ) : (
+                  <div className={styles.placeholderFoto}>
+                    <span>🆔</span>
+                    <p>Clique para anexar CNH (IMG/PDF)</p>
+                  </div>
+                )}
+                <input
+                  id="foto-input-cnh"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleFotoCnhChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            </div>
+
+            {/* Comprovante de Endereço */}
+            <div className={styles.documentoItem}>
+              <h4 className={styles.documentoTitulo}>Comprovante de Endereço</h4>
+              <label htmlFor="foto-input-comprovante" className={styles.fotoPreview} style={{ cursor: 'pointer' }}>
+                {previewFotoComprovanteEndereco ? (
+                  editandoId ? (
+                    // Modo de visualização quando editando (busca)
+                    <div className={styles.documentoVisualizacao} onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      ampliarFotoComprovanteEndereco();
+                    }}>
+                      <span className={styles.documentoIcon}>🏠</span>
+                      <p>Comprovante Anexado</p>
+                      <small>Clique aqui para visualizar</small>
+                    </div>
+                  ) : (
+                    // Modo de preview normal
+                    isPDFUrl(previewFotoComprovanteEndereco) ? (
+                      <div className={styles.pdfPreview} onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        ampliarFotoComprovanteEndereco();
+                      }}>
+                        <span className={styles.pdfIcon}>🏠</span>
+                        <p>Comprovante PDF</p>
+                        <small>Clique para visualizar</small>
+                      </div>
+                    ) : (
+                      <img 
+                        src={previewFotoComprovanteEndereco} 
+                        alt="Comprovante de Endereço" 
+                        className={styles.previewImage}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          ampliarFotoComprovanteEndereco();
+                        }}
+                        style={{ cursor: 'pointer' }}
+                        title="Clique para ampliar"
+                      />
+                    )
+                  )
+                ) : (
+                  <div className={styles.placeholderFoto}>
+                    <span>🏠</span>
+                    <p>Clique para anexar comprovante (IMG/PDF)</p>
+                  </div>
+                )}
+                <input
+                  id="foto-input-comprovante"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleFotoComprovanteEnderecoChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div className={styles.duracaoAgoraWrapper}>
+          <label>
+            Local Estacionado:
+            <input 
+              type="text" 
+              name="localEstacionamento" 
+              value={form.localEstacionamento} 
+              onChange={handleChange}
+              placeholder="Ex: Vaga 15, Pátio A, Subsolo"
+            />
+          </label>
+
           <label>
             Data Entrada:
             <input type="date" name="dataEntrada" value={form.dataEntrada} onChange={handleChange} />
@@ -1441,7 +1768,7 @@ export default function VehicleFormPage() {
           </div>
 
           {/* Modal da câmera */}
-          {mostrandoCamera && (
+          {mostrandoCamera === 'pessoa' && (
             <div className={styles.cameraModal}>
               <div className={styles.cameraContent}>
                 <video
@@ -1458,6 +1785,26 @@ export default function VehicleFormPage() {
                     Fechar
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal para documento ampliado */}
+          {fotoAmpliada && (
+            <div className={styles.fotoAmpliadaModal} onClick={fecharFotoAmpliada}>
+              <div className={styles.fotoAmpliadaContent}>
+                {isPDFUrl(fotoAmpliada) ? (
+                  <iframe 
+                    src={fotoAmpliada} 
+                    className={styles.pdfAmpliadoFrame}
+                    title="Documento PDF"
+                  />
+                ) : (
+                  <img src={fotoAmpliada} alt="Documento Ampliado" className={styles.fotoAmpliadaImage} />
+                )}
+                <button onClick={fecharFotoAmpliada} className={styles.fecharAmpliadaButton}>
+                  ✕
+                </button>
               </div>
             </div>
           )}
@@ -1510,13 +1857,6 @@ export default function VehicleFormPage() {
                 />
               </label>
 
-              <label className={styles.contratoField}>
-                Tipo de Contrato:
-                <select name="tipoContrato" value={form.tipoContrato} onChange={handleChange}>
-                  <option value="mensalista">Mensalista</option>
-                  <option value="por_hora">Por Hora</option>
-                </select>
-              </label>
             </div>
           </div>
         </div>
