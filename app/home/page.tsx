@@ -1159,7 +1159,7 @@ export default function VehicleFormPage() {
         styles: {
           fontSize: 9,
           cellPadding: 2,
-          overflow: 'ellipsis',
+          overflow: 'ellipsize',
           halign: 'center',
           valign: 'middle',
           lineColor: [200, 200, 200],
