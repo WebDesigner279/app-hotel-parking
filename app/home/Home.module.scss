@@ -865,6 +865,14 @@
   align-items: flex-start;
   margin: 1rem 0;
 
+  .fotoContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
   .fotoPreview {
     display: flex;
     flex-direction: column;
@@ -945,6 +953,36 @@
         background: linear-gradient(135deg, #059669 0%, #047857 100%);
         transform: translateY(-1px);
       }
+    }
+  }
+
+  .removerFotoBtn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    
+    &:hover {
+      background: rgba(239, 68, 68, 1);
+      transform: scale(1.1);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    &:active {
+      transform: scale(0.95);
     }
   }
 
@@ -2880,6 +2918,11 @@
     }
   }
 
+  .documentoContainer {
+    position: relative;
+    display: inline-block;
+  }
+
   .fotoPreview {
     display: flex;
     flex-direction: column;
@@ -2923,10 +2966,12 @@
       text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
+      position: relative;
 
       .pdfIcon {
         font-size: 2rem;
         margin-bottom: 0.3rem;
+        color: #dc2626;
       }
 
       p {
@@ -2944,6 +2989,19 @@
         background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
         border-color: #0056b3;
         transform: translateY(-1px);
+      }
+      
+      &::after {
+        content: 'PDF';
+        position: absolute;
+        top: 2px;
+        right: 4px;
+        font-size: 0.6rem;
+        background: #dc2626;
+        color: white;
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-weight: bold;
       }
     }
 
@@ -3042,6 +3100,7 @@
       .pdfPreview {
         width: 120px;
         height: 80px;
+        position: relative;
         
         .pdfIcon {
           font-size: 1.5rem;
@@ -3053,6 +3112,11 @@
         
         small {
           font-size: 0.6rem;
+        }
+        
+        &::after {
+          font-size: 0.5rem;
+          padding: 1px 3px;
         }
       }
 
@@ -3131,13 +3195,144 @@
 
 .pdfAmpliadoFrame {
   width: 90vw;
-  height: 90vh;
+  height: 80vh;
   max-width: 1200px;
-  max-height: 800px;
+  max-height: 700px;
   border: none;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   background: white;
+}
+
+.pdfViewerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  max-width: 600px;
+  text-align: center;
+}
+
+.pdfPlaceholder {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 40px;
+  border-radius: 12px;
+  border: 2px dashed #cbd5e0;
+  
+  .pdfIcon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    color: #dc2626;
+  }
+  
+  h3 {
+    margin: 0 0 15px 0;
+    color: #374151;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+.pdfControls {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.abrirEmNovaAbaButton,
+.baixarPdfButton,
+.visualizarPdfButton {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.abrirEmNovaAbaButton {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  }
+}
+
+.baixarPdfButton {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  
+  &:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+}
+
+.removerDocumentoButton {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  
+  &:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  }
+}
+
+.imagemViewerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.imagemControls {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  
+  button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    
+    &:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.visualizarPdfButton {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  
+  &:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  }
 }
 
 .fecharAmpliadaButton {
@@ -3185,9 +3380,40 @@
     max-height: calc(100% - 10px);
   }
   
-  .pdfAmpliadoFrame {
-    width: 95vw;
-    height: 85vh;
-    border-radius: 8px;
+  .pdfViewerContainer {
+    padding: 15px;
+    max-width: 90vw;
+  }
+  
+  .pdfPlaceholder {
+    padding: 25px;
+    
+    .pdfIcon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+    
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      font-size: 0.9rem;
+    }
+  }
+  
+  .pdfControls {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+  
+  .abrirEmNovaAbaButton,
+  .baixarPdfButton,
+  .visualizarPdfButton {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
   }
 }

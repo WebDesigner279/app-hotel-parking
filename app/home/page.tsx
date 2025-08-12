@@ -61,6 +61,7 @@ export default function VehicleFormPage() {
   const [previewFotoCnh, setPreviewFotoCnh] = useState<string | null>(null);
   const [previewFotoComprovanteEndereco, setPreviewFotoComprovanteEndereco] = useState<string | null>(null);
   const [fotoAmpliada, setFotoAmpliada] = useState<string | null>(null);
+  const [tipoDocumentoAmpliado, setTipoDocumentoAmpliado] = useState<string | null>(null);
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState<VehicleData[]>([]);
   const [editandoId, setEditandoId] = useState<string | null>(null);
@@ -297,32 +298,57 @@ export default function VehicleFormPage() {
 
   // Função utilitária para verificar se é PDF
   const isPDF = (file: File) => {
-    return file.type === 'application/pdf';
+    return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
   };
 
   // Função para verificar se uma URL é PDF
   const isPDFUrl = (url: string) => {
-    return url && (url.startsWith('blob:') || url.includes('.pdf') || url.startsWith('data:application/pdf'));
+    if (!url) return false;
+    return url.startsWith('blob:') || 
+           url.includes('.pdf') || 
+           url.startsWith('data:application/pdf') ||
+           url.includes('application/pdf');
+  };
+
+  // Função para converter arquivo para base64
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      // Validar tamanho do arquivo (máximo 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        reject(new Error('Arquivo muito grande. Máximo permitido: 10MB'));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error('Erro ao ler o arquivo'));
+      reader.readAsDataURL(file);
+    });
   };
 
   // Funções para foto do documento do veículo
-  const handleFotoDocumentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFotoDocumentoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (isPDF(file)) {
-        // Para PDFs, salvar como URL de objeto
-        const pdfUrl = URL.createObjectURL(file);
-        setForm(prev => ({ ...prev, fotoDocumentoVeiculoUrl: pdfUrl }));
-        setPreviewFotoDocumentoVeiculo(pdfUrl);
-      } else {
-        // Para imagens, converter para base64
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const fotoDataUrl = event.target?.result as string;
-          setForm(prev => ({ ...prev, fotoDocumentoVeiculoUrl: fotoDataUrl }));
-          setPreviewFotoDocumentoVeiculo(fotoDataUrl);
-        };
-        reader.readAsDataURL(file);
+      try {
+        // Validar tipo de arquivo
+        if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+          alert('Apenas imagens (JPG, PNG, etc.) e arquivos PDF são permitidos.');
+          return;
+        }
+        
+        // Converter arquivo para base64 (tanto PDF quanto imagem)
+        const fileDataUrl = await convertFileToBase64(file);
+        setForm(prev => ({ ...prev, fotoDocumentoVeiculoUrl: fileDataUrl }));
+        setPreviewFotoDocumentoVeiculo(fileDataUrl);
+      } catch (error) {
+        console.error('Erro ao processar arquivo:', error);
+        alert(`Erro ao processar o arquivo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+        
+        // Limpar o input em caso de erro
+        const input = e.target;
+        if (input) input.value = '';
       }
     }
   };
@@ -331,27 +357,32 @@ export default function VehicleFormPage() {
   const ampliarFotoDocumento = () => {
     if (previewFotoDocumentoVeiculo) {
       setFotoAmpliada(previewFotoDocumentoVeiculo);
+      setTipoDocumentoAmpliado('documentoVeiculo');
     }
   };
 
   // Funções para foto da CNH
-  const handleFotoCnhChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFotoCnhChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (isPDF(file)) {
-        // Para PDFs, salvar como URL de objeto
-        const pdfUrl = URL.createObjectURL(file);
-        setForm(prev => ({ ...prev, fotoCnhUrl: pdfUrl }));
-        setPreviewFotoCnh(pdfUrl);
-      } else {
-        // Para imagens, converter para base64
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const fotoDataUrl = event.target?.result as string;
-          setForm(prev => ({ ...prev, fotoCnhUrl: fotoDataUrl }));
-          setPreviewFotoCnh(fotoDataUrl);
-        };
-        reader.readAsDataURL(file);
+      try {
+        // Validar tipo de arquivo
+        if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+          alert('Apenas imagens (JPG, PNG, etc.) e arquivos PDF são permitidos.');
+          return;
+        }
+        
+        // Converter arquivo para base64 (tanto PDF quanto imagem)
+        const fileDataUrl = await convertFileToBase64(file);
+        setForm(prev => ({ ...prev, fotoCnhUrl: fileDataUrl }));
+        setPreviewFotoCnh(fileDataUrl);
+      } catch (error) {
+        console.error('Erro ao processar arquivo:', error);
+        alert(`Erro ao processar o arquivo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+        
+        // Limpar o input em caso de erro
+        const input = e.target;
+        if (input) input.value = '';
       }
     }
   };
@@ -360,27 +391,32 @@ export default function VehicleFormPage() {
   const ampliarFotoCnh = () => {
     if (previewFotoCnh) {
       setFotoAmpliada(previewFotoCnh);
+      setTipoDocumentoAmpliado('cnh');
     }
   };
 
   // Funções para foto do comprovante de endereço
-  const handleFotoComprovanteEnderecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFotoComprovanteEnderecoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (isPDF(file)) {
-        // Para PDFs, salvar como URL de objeto
-        const pdfUrl = URL.createObjectURL(file);
-        setForm(prev => ({ ...prev, fotoComprovanteEnderecoUrl: pdfUrl }));
-        setPreviewFotoComprovanteEndereco(pdfUrl);
-      } else {
-        // Para imagens, converter para base64
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const fotoDataUrl = event.target?.result as string;
-          setForm(prev => ({ ...prev, fotoComprovanteEnderecoUrl: fotoDataUrl }));
-          setPreviewFotoComprovanteEndereco(fotoDataUrl);
-        };
-        reader.readAsDataURL(file);
+      try {
+        // Validar tipo de arquivo
+        if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+          alert('Apenas imagens (JPG, PNG, etc.) e arquivos PDF são permitidos.');
+          return;
+        }
+        
+        // Converter arquivo para base64 (tanto PDF quanto imagem)
+        const fileDataUrl = await convertFileToBase64(file);
+        setForm(prev => ({ ...prev, fotoComprovanteEnderecoUrl: fileDataUrl }));
+        setPreviewFotoComprovanteEndereco(fileDataUrl);
+      } catch (error) {
+        console.error('Erro ao processar arquivo:', error);
+        alert(`Erro ao processar o arquivo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+        
+        // Limpar o input em caso de erro
+        const input = e.target;
+        if (input) input.value = '';
       }
     }
   };
@@ -389,12 +425,92 @@ export default function VehicleFormPage() {
   const ampliarFotoComprovanteEndereco = () => {
     if (previewFotoComprovanteEndereco) {
       setFotoAmpliada(previewFotoComprovanteEndereco);
+      setTipoDocumentoAmpliado('comprovanteEndereco');
+    }
+  };
+
+  // Função para remover documento específico
+  const removerDocumento = (tipoDocumento: string) => {
+    switch (tipoDocumento) {
+      case 'documentoVeiculo':
+        setForm(prev => ({ ...prev, fotoDocumentoVeiculoUrl: "" }));
+        setPreviewFotoDocumentoVeiculo(null);
+        const inputDocumento = document.getElementById('foto-input-documento') as HTMLInputElement;
+        if (inputDocumento) inputDocumento.value = '';
+        break;
+      case 'cnh':
+        setForm(prev => ({ ...prev, fotoCnhUrl: "" }));
+        setPreviewFotoCnh(null);
+        const inputCnh = document.getElementById('foto-input-cnh') as HTMLInputElement;
+        if (inputCnh) inputCnh.value = '';
+        break;
+      case 'comprovanteEndereco':
+        setForm(prev => ({ ...prev, fotoComprovanteEnderecoUrl: "" }));
+        setPreviewFotoComprovanteEndereco(null);
+        const inputComprovante = document.getElementById('foto-input-comprovante') as HTMLInputElement;
+        if (inputComprovante) inputComprovante.value = '';
+        break;
+    }
+    setFotoAmpliada(null);
+    setTipoDocumentoAmpliado(null);
+  };
+
+  // Função para abrir PDF em nova aba com tratamento especial para base64
+  const abrirPdfEmNovaAba = (pdfUrl: string) => {
+    try {
+      if (pdfUrl.startsWith('data:application/pdf')) {
+        // Para PDFs em base64, criar um blob e abrir
+        const base64Data = pdfUrl.split(',')[1];
+        const binaryString = atob(base64Data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        
+        // Limpar a URL após um tempo para evitar vazamentos de memória
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+      } else {
+        // Para outras URLs, abrir diretamente
+        window.open(pdfUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Erro ao abrir PDF:', error);
+      alert('Erro ao abrir o PDF. Tente baixar o arquivo.');
+    }
+  };
+
+  // Função para baixar PDF
+  const baixarPdf = (pdfUrl: string) => {
+    try {
+      const link = document.createElement('a');
+      
+      if (pdfUrl.startsWith('data:application/pdf')) {
+        // Para PDFs em base64
+        link.href = pdfUrl;
+        link.download = `documento_${new Date().getTime()}.pdf`;
+      } else {
+        // Para outras URLs
+        link.href = pdfUrl;
+        link.download = `documento_${new Date().getTime()}.pdf`;
+      }
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Erro ao baixar PDF:', error);
+      // Fallback: tentar abrir em nova aba
+      abrirPdfEmNovaAba(pdfUrl);
     }
   };
 
   // Função para fechar foto ampliada
   const fecharFotoAmpliada = () => {
     setFotoAmpliada(null);
+    setTipoDocumentoAmpliado(null);
   };
 
   const salvarDados = (dados: VehicleData[]) => {
@@ -460,8 +576,20 @@ export default function VehicleFormPage() {
     setPreviewFotoCnh(null);
     setPreviewFotoComprovanteEndereco(null);
     
-    // Limpar o input de arquivo
-    const inputFile = document.getElementById('foto-input-galeria') as HTMLInputElement;
+    // Limpar todos os inputs de arquivo
+    const inputIds = [
+      'foto-input-galeria', 
+      'foto-input-documento', 
+      'foto-input-cnh', 
+      'foto-input-comprovante'
+    ];
+    
+    inputIds.forEach(id => {
+      const inputFile = document.getElementById(id) as HTMLInputElement;
+      if (inputFile) {
+        inputFile.value = '';
+      }
+    });
     if (inputFile) {
       inputFile.value = '';
     }
@@ -1499,7 +1627,6 @@ export default function VehicleFormPage() {
 
         {/* Seção para documentos */}
         <div className={styles.documentosSection}>
-          <h3 className={styles.sectionTitle}>Documentos</h3>
           <div className={styles.documentosContainer}>
             {/* Documento do Veículo */}
             <div className={styles.documentoItem}>
@@ -1792,15 +1919,123 @@ export default function VehicleFormPage() {
           {/* Modal para documento ampliado */}
           {fotoAmpliada && (
             <div className={styles.fotoAmpliadaModal} onClick={fecharFotoAmpliada}>
-              <div className={styles.fotoAmpliadaContent}>
+              <div className={styles.fotoAmpliadaContent} onClick={(e) => e.stopPropagation()}>
                 {isPDFUrl(fotoAmpliada) ? (
-                  <iframe 
-                    src={fotoAmpliada} 
-                    className={styles.pdfAmpliadoFrame}
-                    title="Documento PDF"
-                  />
+                  <div className={styles.pdfViewerContainer}>
+                    <div className={styles.pdfPlaceholder}>
+                      <div className={styles.pdfIcon}>📄</div>
+                      <h3>Documento PDF</h3>
+                      <p>Clique em uma das opções abaixo para visualizar o documento:</p>
+                    </div>
+                    <div className={styles.pdfControls}>
+                      <button 
+                        onClick={() => abrirPdfEmNovaAba(fotoAmpliada)}
+                        className={styles.abrirEmNovaAbaButton}
+                      >
+                        Abrir em Nova Aba
+                      </button>
+                      {tipoDocumentoAmpliado && (
+                        <button 
+                          onClick={() => {
+                            const confirmacao = confirm('Tem certeza que deseja remover este documento?');
+                            if (confirmacao && tipoDocumentoAmpliado) {
+                              removerDocumento(tipoDocumentoAmpliado);
+                            }
+                          }}
+                          className={styles.removerDocumentoButton}
+                        >
+                          Excluir
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => {
+                          try {
+                            // Criar um elemento embed como alternativa
+                            const embedWindow = window.open('', '_blank', 'width=800,height=600');
+                            if (embedWindow) {
+                              if (fotoAmpliada.startsWith('data:application/pdf')) {
+                                // Para base64, criar blob URL
+                                const base64Data = fotoAmpliada.split(',')[1];
+                                const binaryString = atob(base64Data);
+                                const bytes = new Uint8Array(binaryString.length);
+                                for (let i = 0; i < binaryString.length; i++) {
+                                  bytes[i] = binaryString.charCodeAt(i);
+                                }
+                                const blob = new Blob([bytes], { type: 'application/pdf' });
+                                const blobUrl = URL.createObjectURL(blob);
+                                
+                                embedWindow.document.write(`
+                                  <html>
+                                    <head>
+                                      <title>Visualizar PDF</title>
+                                      <style>
+                                        body { margin: 0; padding: 0; }
+                                        embed, object { width: 100vw; height: 100vh; }
+                                      </style>
+                                    </head>
+                                    <body>
+                                      <embed src="${blobUrl}" type="application/pdf" width="100%" height="100%" />
+                                    </body>
+                                  </html>
+                                `);
+                                
+                                // Limpar após um tempo
+                                setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+                              } else {
+                                embedWindow.document.write(`
+                                  <html>
+                                    <head>
+                                      <title>Visualizar PDF</title>
+                                      <style>
+                                        body { margin: 0; padding: 0; }
+                                        embed, object { width: 100vw; height: 100vh; }
+                                      </style>
+                                    </head>
+                                    <body>
+                                      <embed src="${fotoAmpliada}" type="application/pdf" width="100%" height="100%" />
+                                    </body>
+                                  </html>
+                                `);
+                              }
+                            }
+                          } catch (error) {
+                            console.error('Erro ao visualizar PDF:', error);
+                            abrirPdfEmNovaAba(fotoAmpliada);
+                          }
+                        }}
+                        className={styles.visualizarPdfButton}
+                      >
+                        Visualizar PDF
+                      </button>
+                    </div>
+                  </div>
                 ) : (
-                  <img src={fotoAmpliada} alt="Documento Ampliado" className={styles.fotoAmpliadaImage} />
+                  <div className={styles.imagemViewerContainer}>
+                    <img 
+                      src={fotoAmpliada} 
+                      alt="Documento Ampliado" 
+                      className={styles.fotoAmpliadaImage}
+                      onError={(e) => {
+                        console.error('Erro ao carregar imagem');
+                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM5Y2E5YjciIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5FcnJvIGFvIGNhcnJlZ2FyPC90ZXh0Pjwvc3ZnPg==';
+                      }}
+                    />
+                    {tipoDocumentoAmpliado && (
+                      <div className={styles.imagemControls}>
+                        <button 
+                          onClick={() => {
+                            const confirmacao = confirm('Tem certeza que deseja remover esta imagem?');
+                            if (confirmacao && tipoDocumentoAmpliado) {
+                              removerDocumento(tipoDocumentoAmpliado);
+                            }
+                          }}
+                          className={styles.removerDocumentoButton}
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
                 <button onClick={fecharFotoAmpliada} className={styles.fecharAmpliadaButton}>
                   ✕
