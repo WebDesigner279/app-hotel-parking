@@ -590,9 +590,6 @@ export default function VehicleFormPage() {
         inputFile.value = '';
       }
     });
-    if (inputFile) {
-      inputFile.value = '';
-    }
   };
 
   const realizarBusca = (termo: string, fecharSidebar: boolean = false, carregarNoFormulario: boolean = false) => {
