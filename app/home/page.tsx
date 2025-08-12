@@ -2059,6 +2059,7 @@ export default function VehicleFormPage() {
               <th>Placa</th>
               <th>Modelo</th>
               <th>Cor</th>
+              <th>Local</th>
               <th>Data Entrada</th>
               <th>Tempo Permitido</th>
               <th>Tempo<br />Decorrido</th>
@@ -2077,6 +2078,7 @@ export default function VehicleFormPage() {
                 <td className={styles.placaCell}>{exibirPlacaFormatada(v.placa)}</td>
                 <td>{v.modelo}</td>
                 <td>{v.cor}</td>
+                <td>{v.localEstacionamento || '-'}</td>
                 <td>{v.dataEntrada}</td>
                 <td className={v.duracaoMinutos === 43200 ? styles.duracaoMensal : ''}>
                   {calcularTempoPermitido(v.duracaoMinutos)}
