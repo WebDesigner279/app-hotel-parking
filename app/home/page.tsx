@@ -1671,7 +1671,7 @@ export default function VehicleFormPage() {
                 ) : (
                   <div className={styles.placeholderFoto}>
                     <span>📄</span>
-                    <p>Clique para anexar documento (IMG/PDF)</p>
+                    <p>Anexar (IMG/PDF)</p>
                   </div>
                 )}
                 <input
@@ -1730,7 +1730,7 @@ export default function VehicleFormPage() {
                 ) : (
                   <div className={styles.placeholderFoto}>
                     <span>🆔</span>
-                    <p>Clique para anexar CNH (IMG/PDF)</p>
+                    <p>Anexar (IMG/PDF)</p>
                   </div>
                 )}
                 <input
@@ -1789,7 +1789,7 @@ export default function VehicleFormPage() {
                 ) : (
                   <div className={styles.placeholderFoto}>
                     <span>🏠</span>
-                    <p>Clique para anexar comprovante (IMG/PDF)</p>
+                    <p>Anexar (IMG/PDF)</p>
                   </div>
                 )}
                 <input
@@ -1929,7 +1929,7 @@ export default function VehicleFormPage() {
                         onClick={() => abrirPdfEmNovaAba(fotoAmpliada)}
                         className={styles.abrirEmNovaAbaButton}
                       >
-                        Abrir em Nova Aba
+                        Visualizar PDF
                       </button>
                       {tipoDocumentoAmpliado && (
                         <button 
@@ -1944,66 +1944,6 @@ export default function VehicleFormPage() {
                           Excluir
                         </button>
                       )}
-                      <button 
-                        onClick={() => {
-                          try {
-                            // Criar um elemento embed como alternativa
-                            const embedWindow = window.open('', '_blank', 'width=800,height=600');
-                            if (embedWindow) {
-                              if (fotoAmpliada.startsWith('data:application/pdf')) {
-                                // Para base64, criar blob URL
-                                const base64Data = fotoAmpliada.split(',')[1];
-                                const binaryString = atob(base64Data);
-                                const bytes = new Uint8Array(binaryString.length);
-                                for (let i = 0; i < binaryString.length; i++) {
-                                  bytes[i] = binaryString.charCodeAt(i);
-                                }
-                                const blob = new Blob([bytes], { type: 'application/pdf' });
-                                const blobUrl = URL.createObjectURL(blob);
-                                
-                                embedWindow.document.write(`
-                                  <html>
-                                    <head>
-                                      <title>Visualizar PDF</title>
-                                      <style>
-                                        body { margin: 0; padding: 0; }
-                                        embed, object { width: 100vw; height: 100vh; }
-                                      </style>
-                                    </head>
-                                    <body>
-                                      <embed src="${blobUrl}" type="application/pdf" width="100%" height="100%" />
-                                    </body>
-                                  </html>
-                                `);
-                                
-                                // Limpar após um tempo
-                                setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
-                              } else {
-                                embedWindow.document.write(`
-                                  <html>
-                                    <head>
-                                      <title>Visualizar PDF</title>
-                                      <style>
-                                        body { margin: 0; padding: 0; }
-                                        embed, object { width: 100vw; height: 100vh; }
-                                      </style>
-                                    </head>
-                                    <body>
-                                      <embed src="${fotoAmpliada}" type="application/pdf" width="100%" height="100%" />
-                                    </body>
-                                  </html>
-                                `);
-                              }
-                            }
-                          } catch (error) {
-                            console.error('Erro ao visualizar PDF:', error);
-                            abrirPdfEmNovaAba(fotoAmpliada);
-                          }
-                        }}
-                        className={styles.visualizarPdfButton}
-                      >
-                        Visualizar PDF
-                      </button>
                     </div>
                   </div>
                 ) : (

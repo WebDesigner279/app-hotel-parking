@@ -3093,39 +3093,39 @@
 
     .fotoPreview {
       .previewImage {
-        width: 120px;
-        height: 80px;
+        width: 180px;
+        height: 120px;
       }
 
       .pdfPreview {
-        width: 120px;
-        height: 80px;
+        width: 180px;
+        height: 120px;
         position: relative;
         
         .pdfIcon {
-          font-size: 1.5rem;
+          font-size: 2rem;
         }
         
         p {
-          font-size: 0.7rem;
+          font-size: 0.8rem;
         }
         
         small {
-          font-size: 0.6rem;
+          font-size: 0.7rem;
         }
         
         &::after {
-          font-size: 0.5rem;
-          padding: 1px 3px;
+          font-size: 0.55rem;
+          padding: 2px 4px;
         }
       }
 
       .documentoVisualizacao {
-        width: 120px;
-        height: 80px;
+        width: 180px;
+        height: 120px;
         
         .documentoIcon {
-          font-size: 1.5rem;
+          font-size: 2rem;
         }
         
         p {
@@ -3138,15 +3138,15 @@
       }
 
       .placeholderFoto {
-        width: 120px;
-        height: 80px;
+        width: 180px;
+        height: 120px;
         
         span {
-          font-size: 1.5rem;
+          font-size: 2rem;
         }
         
         p {
-          font-size: 0.7rem;
+          font-size: 0.8rem;
         }
       }
     }
