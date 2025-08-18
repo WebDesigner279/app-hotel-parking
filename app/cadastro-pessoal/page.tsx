@@ -379,7 +379,7 @@ export default function CadastroPessoal() {
               onClick={fecharSidebar}
             >
               <FaHome className={styles.navIcon} />
-              <span>Controle de Acesso</span>
+                <span>Controle de Acesso</span>
             </Link>
             <Link 
               href="/cadastro-pessoal" 
@@ -387,7 +387,7 @@ export default function CadastroPessoal() {
               onClick={fecharSidebar}
             >
               <FaUser className={styles.navIcon} />
-              <span>Cadastrar Hóspede</span>
+                <span>Cadastrar Hóspede</span>
             </Link>
             <Link 
               href="/sobre" 
@@ -395,7 +395,7 @@ export default function CadastroPessoal() {
               onClick={fecharSidebar}
             >
               <FaInfoCircle className={styles.navIcon} />
-              <span>Sobre</span>
+                <span>Sobre</span>
             </Link>
             <Link 
               href="/contato" 
@@ -403,7 +403,7 @@ export default function CadastroPessoal() {
               onClick={fecharSidebar}
             >
               <FaEnvelope className={styles.navIcon} />
-              <span>Contato</span>
+                <span>Contato</span>
             </Link>
           </nav>
         </div>

@@ -67,6 +67,8 @@ export default function VehicleFormPage() {
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [editacaoManual, setEdicaoManual] = useState(false); // Distingue edição manual da busca automática
   const [tempoAtual, setTempoAtual] = useState(new Date());
+  const [ultimaAtualizacao, setUltimaAtualizacao] = useState(new Date());
+  const [notificacaoViradaDia, setNotificacaoViradaDia] = useState(false);
   const [sidebarAberta, setSidebarAberta] = useState(false);
   const [streamCamera, setStreamCamera] = useState<MediaStream | null>(null);
   const [mostrandoCamera, setMostrandoCamera] = useState<false | 'pessoa' | 'documentoVeiculo'>(false);
@@ -74,19 +76,153 @@ export default function VehicleFormPage() {
   useEffect(() => {
     carregarDados();
     
-    // Atualizar o tempo a cada minuto para recalcular os tempos decorridos
-    const interval = setInterval(() => {
-      setTempoAtual(new Date());
-    }, 60000); // 60 segundos
+    // Função para determinar intervalo de atualização baseado no horário
+    const obterIntervaloAtualizacao = () => {
+      const agora = new Date();
+      const hora = agora.getHours();
+      const minuto = agora.getMinutes();
+      
+      // Próximo à meia-noite (23:50 - 00:10): atualizar a cada 5 segundos
+      if ((hora === 23 && minuto >= 50) || (hora === 0 && minuto <= 10)) {
+        return 5000; // 5 segundos
+      }
+      // Horário normal: atualizar a cada 30 segundos
+      return 30000; // 30 segundos
+    };
+
+    // Função para configurar o próximo intervalo
+    const configurarProximoIntervalo = () => {
+      const intervalo = obterIntervaloAtualizacao();
+      
+      setTimeout(() => {
+        const agora = new Date();
+        const dataAnterior = tempoAtual.toDateString();
+        const dataAtual = agora.toDateString();
+        
+        // Verificar se houve mudança de data
+        const houveMudancaDeData = dataAnterior !== dataAtual;
+        
+        setTempoAtual(agora);
+        setUltimaAtualizacao(agora);
+        
+        // Se houve mudança de data, forçar recálculo
+        if (houveMudancaDeData) {
+          console.log('Virada de data detectada, forçando recálculo de tempos');
+          setNotificacaoViradaDia(true);
+          forcarRecalculoTempos();
+          
+          // Esconder notificação após 5 segundos
+          setTimeout(() => {
+            setNotificacaoViradaDia(false);
+          }, 5000);
+        }
+        
+        // Reconfigurar para o próximo ciclo
+        configurarProximoIntervalo();
+      }, intervalo);
+    };
+
+    // Iniciar o sistema de atualização inteligente
+    configurarProximoIntervalo();
+
+    // Atualizar tempo quando o usuário volta à aba/janela
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const agora = new Date();
+        setTempoAtual(agora);
+        setUltimaAtualizacao(agora);
+      }
+    };
+
+    const handleFocus = () => {
+      const agora = new Date();
+      setTempoAtual(agora);
+      setUltimaAtualizacao(agora);
+    };
+
+    // Adicionar event listeners
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
     
     return () => {
-      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      
       // Limpar stream da câmera se estiver ativo
       if (streamCamera) {
         streamCamera.getTracks().forEach(track => track.stop());
       }
     };
   }, []);
+
+  // Função utilitária para obter tempo atual sincronizado
+  const obterTempoAtualSincronizado = (): Date => {
+    const agora = new Date();
+    setTempoAtual(agora);
+    setUltimaAtualizacao(agora);
+    return agora;
+  };
+
+  // Função para validar e corrigir data durante virada do dia
+  const validarECorrigirData = (data: Date): Date => {
+    const agora = new Date();
+    const diferencaMs = Math.abs(agora.getTime() - data.getTime());
+    
+    // Se a diferença for maior que 2 minutos, usar o tempo atual
+    // Isso ajuda a corrigir problemas durante virada de data
+    if (diferencaMs > 120000) {
+      console.warn('Diferença de tempo detectada, corrigindo para tempo atual');
+      return agora;
+    }
+    
+    return data;
+  };
+
+  // Função para verificar se estamos próximos da virada do dia
+  const verificarProximidadeViradaDia = (data: Date): boolean => {
+    const hora = data.getHours();
+    const minuto = data.getMinutes();
+    
+    // Próximo à meia-noite (23:50 - 00:10)
+    return (hora === 23 && minuto >= 50) || (hora === 0 && minuto <= 10);
+  };
+
+  // Função para forçar recálculo de todos os tempos após virada de dia
+  const forcarRecalculoTempos = () => {
+    // Força re-render da tabela atualizando o estado de tempo
+    const agora = new Date();
+    setTempoAtual(agora);
+    setUltimaAtualizacao(agora);
+    
+    // Recarregar dados se necessário
+    carregarDados();
+  };
+
+  // Função para atualizar tempo em tempo real quando necessário
+  const atualizarTempoSeNecessario = (): Date => {
+    const agora = new Date();
+    const diferenca = agora.getTime() - tempoAtual.getTime();
+    
+    // Verificar se houve mudança de data
+    const dataAtual = agora.toDateString();
+    const dataAnterior = tempoAtual.toDateString();
+    const houveMudancaDeData = dataAtual !== dataAnterior;
+    
+    // Atualizar se:
+    // 1. Diferença maior que 10 segundos
+    // 2. Houve mudança de data (virada do dia)
+    // 3. Diferença maior que 5 segundos próximo à meia-noite (23:55 - 00:05)
+    const proximoMeiaNoite = (agora.getHours() === 23 && agora.getMinutes() >= 55) || 
+                            (agora.getHours() === 0 && agora.getMinutes() <= 5);
+    
+    if (diferenca > 10000 || houveMudancaDeData || (proximoMeiaNoite && diferenca > 5000)) {
+      setTempoAtual(agora);
+      setUltimaAtualizacao(agora);
+      return agora;
+    }
+    
+    return tempoAtual;
+  };
 
   // UseEffect para ajustar duração automaticamente baseado no tipo de contrato
   useEffect(() => {
@@ -104,7 +240,9 @@ export default function VehicleFormPage() {
     
     // Atualizar apenas se a duração atual não faz sentido para o tipo de contrato
     if (
-      (form.tipoContrato === "mensalista" && form.duracaoMinutos < 1440) ||
+      (form.tipoContrato === "mensalista" && 
+       form.duracaoMinutos < 60 || 
+       (form.duracaoMinutos > 720 && form.duracaoMinutos !== 43200)) ||
       (form.tipoContrato === "por_hora" && form.duracaoMinutos > 720)
     ) {
       setForm(prev => ({
@@ -178,7 +316,41 @@ export default function VehicleFormPage() {
   const carregarDados = () => {
     if (typeof window !== 'undefined') {
       const data = JSON.parse(localStorage.getItem("veiculos") || "[]");
-      setResultados(data);
+      
+      // Corrigir dados inconsistentes
+      const dadosCorrigidos = data.map((veiculo: VehicleData) => {
+        let duracaoCorrigida = veiculo.duracaoMinutos;
+        
+        // Corrigir durações inconsistentes baseado no tipo de contrato
+        if (veiculo.tipoContrato === "mensalista" && 
+            (veiculo.duracaoMinutos < 60 || 
+             (veiculo.duracaoMinutos > 720 && veiculo.duracaoMinutos !== 43200))) {
+          // Durações válidas para mensalista: 60-720 min (1-12h) ou 43200 min (30 dias)
+          duracaoCorrigida = 43200; // 30 dias
+          console.log(`Corrigindo duração para ${veiculo.placa}: de ${veiculo.duracaoMinutos} para ${duracaoCorrigida} minutos`);
+        } else if (veiculo.tipoContrato === "por_hora" && veiculo.duracaoMinutos > 720) {
+          // Só corrigir se for maior que 12 horas para por_hora
+          duracaoCorrigida = 60; // 1 hora
+          console.log(`Corrigindo duração para ${veiculo.placa}: de ${veiculo.duracaoMinutos} para ${duracaoCorrigida} minutos`);
+        }
+        
+        return {
+          ...veiculo,
+          duracaoMinutos: duracaoCorrigida
+        };
+      });
+      
+      // Salvar dados corrigidos se houve correções
+      const houveMudancas = dadosCorrigidos.some((v: VehicleData, index: number) => 
+        v.duracaoMinutos !== data[index]?.duracaoMinutos
+      );
+      
+      if (houveMudancas) {
+        localStorage.setItem("veiculos", JSON.stringify(dadosCorrigidos));
+        console.log('Dados corrigidos e salvos no localStorage');
+      }
+      
+      setResultados(dadosCorrigidos);
     }
   };
 
@@ -234,6 +406,14 @@ export default function VehicleFormPage() {
         ...prev, 
         [name]: valorFormatado,
         duracaoMinutos: duracaoSincronizada
+      }));
+    } else if (name === 'duracaoMinutos') {
+      // Quando a duração é alterada manualmente, converter para número e respeitar escolha
+      const duracaoEscolhida = parseInt(value);
+      
+      setForm((prev) => ({ 
+        ...prev, 
+        [name]: duracaoEscolhida 
       }));
     } else {
       setForm((prev) => ({ ...prev, [name]: valorFormatado }));
@@ -776,7 +956,17 @@ export default function VehicleFormPage() {
 
   // Função para carregar um resultado específico no formulário
   const carregarResultadoNoFormulario = (resultado: VehicleData) => {
-    setForm(resultado);
+    // Carregar dados com duração corrigida se necessário
+    let resultadoCorrigido = { ...resultado };
+    
+      // Corrigir duração se inconsistente com tipo de contrato
+      if (resultado.tipoContrato === "mensalista" && resultado.duracaoMinutos < 60) {
+        // Só corrigir durações muito pequenas para mensalista
+        resultadoCorrigido.duracaoMinutos = 43200; // 30 dias
+      } else if (resultado.tipoContrato === "por_hora" && resultado.duracaoMinutos > 720) {
+        // Só corrigir durações maiores que 12h para por_hora
+        resultadoCorrigido.duracaoMinutos = 60; // 1 hora
+      }    setForm(resultadoCorrigido);
     setPreviewFoto(resultado.fotoUrl);
     setPreviewFotoDocumentoVeiculo(resultado.fotoDocumentoVeiculoUrl || null);
     setPreviewFotoCnh(resultado.fotoCnhUrl || null);
@@ -793,7 +983,19 @@ export default function VehicleFormPage() {
   const handleEditar = (id: string) => {
     const encontrado = resultados.find((v) => v.id === id);
     if (encontrado) {
-      setForm(encontrado);
+      // Carregar dados com duração corrigida se necessário
+      let dadoCorrigido = { ...encontrado };
+      
+      // Corrigir duração se inconsistente com tipo de contrato
+      if (encontrado.tipoContrato === "mensalista" && encontrado.duracaoMinutos < 60) {
+        // Só corrigir durações muito pequenas para mensalista  
+        dadoCorrigido.duracaoMinutos = 43200; // 30 dias
+      } else if (encontrado.tipoContrato === "por_hora" && encontrado.duracaoMinutos > 720) {
+        // Só corrigir durações maiores que 12h para por_hora
+        dadoCorrigido.duracaoMinutos = 60; // 1 hora
+      }
+      
+      setForm(dadoCorrigido);
       setPreviewFoto(encontrado.fotoUrl);
       setPreviewFotoDocumentoVeiculo(encontrado.fotoDocumentoVeiculoUrl || null);
       setPreviewFotoCnh(encontrado.fotoCnhUrl || null);
@@ -1001,13 +1203,26 @@ export default function VehicleFormPage() {
   };
 
   // Função para calcular o tempo excedido
-  const calcularTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number, tipoContrato: string = "mensalista") => {
+  const calcularTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number, tipoContrato: string = "mensalista", tempoReferencia?: Date) => {
     if (!dataEntrada) return "0 min";
+
+    // Validar e corrigir duração baseado no tipo de contrato (apenas casos muito inconsistentes)
+    let duracaoCorrigida = duracaoMinutos;
+    if (tipoContrato === "mensalista" && 
+        (duracaoMinutos < 60 || 
+         (duracaoMinutos > 720 && duracaoMinutos !== 43200))) {
+      // Durações válidas para mensalista: 60-720 min (1-12h) ou 43200 min (30 dias)
+      duracaoCorrigida = 43200; // 30 dias para mensalistas
+    } else if (tipoContrato === "por_hora" && duracaoMinutos > 720) {
+      // Só corrigir durações maiores que 12h para por_hora
+      duracaoCorrigida = 60; // 1 hora para por hora
+    }
 
     // Combinar data e hora para criar o timestamp completo
     const horaCompleta = horaEntrada || "00:00";
     const dataHoraEntrada = new Date(`${dataEntrada}T${horaCompleta}:00`);
-    const agora = tempoAtual;
+    // Usar tempo de referência fornecido ou o tempo atual mais atualizado
+    const agora = tempoReferencia || atualizarTempoSeNecessario();
     
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
@@ -1017,8 +1232,8 @@ export default function VehicleFormPage() {
       return "Aguardando início";
     }
     
-    // Calcular tempo excedido baseado SEMPRE na duração específica escolhida
-    const tempoExcedido = diferencaMinutos - duracaoMinutos;
+    // Calcular tempo excedido baseado na duração corrigida
+    const tempoExcedido = diferencaMinutos - duracaoCorrigida;
     
     // Se ainda não excedeu o tempo permitido
     if (tempoExcedido <= 0) {
@@ -1044,11 +1259,12 @@ export default function VehicleFormPage() {
   };
 
   // Função para obter a classe CSS do tempo decorrido
-  const obterClasseTempoDecorrido = (dataEntrada: string) => {
+  const obterClasseTempoDecorrido = (dataEntrada: string, tempoReferencia?: Date) => {
     if (!dataEntrada) return styles.tempoDecorrido;
 
     const dataHoraEntrada = new Date(`${dataEntrada}T00:00:00`);
-    const agora = tempoAtual;
+    // Usar tempo de referência fornecido ou o tempo atual mais atualizado
+    const agora = tempoReferencia || atualizarTempoSeNecessario();
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
     
@@ -1061,13 +1277,14 @@ export default function VehicleFormPage() {
   };
 
   // Função para obter a classe CSS baseada no tempo excedido
-  const obterClasseTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number, tipoContrato: string = "mensalista") => {
+  const obterClasseTempoExcedido = (dataEntrada: string, horaEntrada: string, duracaoMinutos: number, tipoContrato: string = "mensalista", tempoReferencia?: Date) => {
     if (!dataEntrada) return styles.tempoExcedido;
 
     // Combinar data e hora para criar o timestamp completo
     const horaCompleta = horaEntrada || "00:00";
     const dataHoraEntrada = new Date(`${dataEntrada}T${horaCompleta}:00`);
-    const agora = tempoAtual;
+    // Usar tempo de referência fornecido ou o tempo atual mais atualizado
+    const agora = tempoReferencia || atualizarTempoSeNecessario();
     const diferencaMs = agora.getTime() - dataHoraEntrada.getTime();
     const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60));
     
@@ -1091,8 +1308,8 @@ export default function VehicleFormPage() {
       // Para durações de até 1 hora: tolerância menor
       toleranciaLeve = Math.floor(duracaoMinutos * 0.25); // 25% da duração
       toleranciaMedio = Math.floor(duracaoMinutos * 0.5); // 50% da duração
-    } else if (duracaoMinutos <= 1440) {
-      // Para durações de até 1 dia: tolerância em horas
+    } else if (duracaoMinutos <= 720) {
+      // Para durações de até 12 horas: tolerância em horas
       toleranciaLeve = 60; // 1 hora
       toleranciaMedio = 180; // 3 horas
     } else {
@@ -1111,16 +1328,28 @@ export default function VehicleFormPage() {
   };
 
   // Função para calcular o tempo permitido (duração formatada)
-  const calcularTempoPermitido = (duracaoMinutos: number) => {
-    if (duracaoMinutos < 60) {
-      return `${duracaoMinutos} min`;
-    } else if (duracaoMinutos < 1440) {
-      const horas = Math.floor(duracaoMinutos / 60);
-      const minutos = duracaoMinutos % 60;
+  const calcularTempoPermitido = (duracaoMinutos: number, tipoContrato: string = "mensalista") => {
+    // Validar e corrigir duração baseado no tipo de contrato (apenas casos muito inconsistentes)
+    let duracaoCorrigida = duracaoMinutos;
+    if (tipoContrato === "mensalista" && 
+        (duracaoMinutos < 60 || 
+         (duracaoMinutos > 720 && duracaoMinutos !== 43200))) {
+      // Durações válidas para mensalista: 60-720 min (1-12h) ou 43200 min (30 dias)
+      duracaoCorrigida = 43200; // 30 dias para mensalistas
+    } else if (tipoContrato === "por_hora" && duracaoMinutos > 720) {
+      // Só corrigir durações maiores que 12h para por_hora
+      duracaoCorrigida = 60; // 1 hora para por hora
+    }
+    
+    if (duracaoCorrigida < 60) {
+      return `${duracaoCorrigida} min`;
+    } else if (duracaoCorrigida < 1440) {
+      const horas = Math.floor(duracaoCorrigida / 60);
+      const minutos = duracaoCorrigida % 60;
       return minutos > 0 ? `${horas}h ${minutos}min` : `${horas}h`;
     } else {
-      const dias = Math.floor(duracaoMinutos / 1440);
-      const horas = Math.floor((duracaoMinutos % 1440) / 60);
+      const dias = Math.floor(duracaoCorrigida / 1440);
+      const horas = Math.floor((duracaoCorrigida % 1440) / 60);
       if (horas > 0) {
         return `${dias}d ${horas}h`;
       } else {
@@ -1204,9 +1433,15 @@ export default function VehicleFormPage() {
   };
 
   const preencherDataHoraAtual = () => {
-    const agora = new Date();
-    const dataAtual = agora.toISOString().split('T')[0];
-    const horaAtual = agora.toTimeString().slice(0, 5); // HH:MM
+    // Usar função utilitária para obter tempo sincronizado e validado
+    let agoraAtualizado = obterTempoAtualSincronizado();
+    agoraAtualizado = validarECorrigirData(agoraAtualizado);
+    
+    const dataAtual = agoraAtualizado.toISOString().split('T')[0];
+    const horaAtual = agoraAtualizado.toTimeString().slice(0, 5); // HH:MM
+    
+    // Log para debug (pode ser removido em produção)
+    console.log(`Botão Agora clicado: ${dataAtual} ${horaAtual}`);
     
     setForm(prev => ({
       ...prev,
@@ -1233,6 +1468,9 @@ export default function VehicleFormPage() {
     }
 
     try {
+      // Usar função utilitária para obter tempo sincronizado
+      const tempoExportacao = obterTempoAtualSincronizado();
+      
       const doc = new jsPDF('landscape', 'mm', 'a4'); // A4 paisagem
       const pageWidth = doc.internal.pageSize.width;
       const pageHeight = doc.internal.pageSize.height;
@@ -1241,9 +1479,9 @@ export default function VehicleFormPage() {
       doc.setFontSize(16);
       doc.text('Relatório de Veículos - Hotel Parking', pageWidth / 2, 15, { align: 'center' });
       
-      // Adicionar data de geração
+      // Adicionar data de geração usando o tempo mais atual
       doc.setFontSize(10);
-      const dataAtual = new Date().toLocaleString('pt-BR');
+      const dataAtual = tempoExportacao.toLocaleString('pt-BR');
       doc.text(`Gerado em: ${dataAtual}`, pageWidth / 2, 25, { align: 'center' });
       
       // Tabela única com dados essenciais na sequência solicitada
@@ -1253,7 +1491,7 @@ export default function VehicleFormPage() {
       ];
 
       const linhas = resultados.map(v => {
-        const tempoExcedido = calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato);
+        const tempoExcedido = calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato, tempoExportacao);
         let status = 'Normal';
         if (tempoExcedido.includes('Dentro do prazo')) {
           status = 'OK';
@@ -1268,7 +1506,7 @@ export default function VehicleFormPage() {
           v.placa,
           v.tipo.charAt(0).toUpperCase() + v.tipo.slice(1),
           v.modelo.length > 16 ? v.modelo.substring(0, 16) + '...' : v.modelo,
-          v.dataEntrada ? new Date(v.dataEntrada).toLocaleDateString('pt-BR') : '-',
+          v.dataEntrada ? v.dataEntrada.split('-').reverse().join('/') : '-',
           v.horaEntrada || '-',
           v.localEstacionamento.length > 14 ? v.localEstacionamento.substring(0, 14) + '...' : v.localEstacionamento || '-',
           formatarDuracao(v.duracaoMinutos),
@@ -1342,7 +1580,7 @@ export default function VehicleFormPage() {
       }
 
       // Salvar o PDF
-      const nomeArquivo = `veiculos_${new Date().toISOString().split('T')[0]}.pdf`;
+      const nomeArquivo = `veiculos_${tempoExportacao.toISOString().split('T')[0]}.pdf`;
       doc.save(nomeArquivo);
 
       alert(`✅ Dados exportados com sucesso!\n\nArquivo: ${nomeArquivo}\nTotal de registros: ${resultados.length}\n\nRelatório resumido com dados essenciais gerado.`);
@@ -1830,24 +2068,32 @@ export default function VehicleFormPage() {
             Duração:
             <select name="duracaoMinutos" value={form.duracaoMinutos} onChange={handleChange}>
               {form.tipoContrato === "por_hora" ? (
-                // Opções para contratos por hora (máximo 12 horas)
+                // Opções para contratos por hora
                 <>
-                  <option value={60}>1 hora ⭐ Recomendado</option>
+                  <option value={60}>1 hora</option>
                   <option value={120}>2 horas</option>
+                  <option value={180}>3 horas</option>
                   <option value={240}>4 horas</option>
+                  <option value={360}>6 horas</option>
                   <option value={480}>8 horas</option>
                   <option value={720}>12 horas</option>
                 </>
               ) : (
-                // Opções para mensalistas e outros tipos
+                // Opções para mensalistas
                 <>
                   <option value={60}>1 hora</option>
                   <option value={120}>2 horas</option>
+                  <option value={180}>3 horas</option>
                   <option value={240}>4 horas</option>
+                  <option value={300}>5 horas</option>
+                  <option value={360}>6 horas</option>
+                  <option value={420}>7 horas</option>
                   <option value={480}>8 horas</option>
+                  <option value={540}>9 horas</option>
+                  <option value={600}>10 horas</option>
+                  <option value={660}>11 horas</option>
                   <option value={720}>12 horas</option>
-                  <option value={1440}>24 horas</option>
-                  <option value={43200}>30 dias {form.tipoContrato === "mensalista" ? "⭐ Recomendado" : ""}</option>
+                  <option value={43200}>30 dias</option>
                 </>
               )}
             </select>
@@ -1858,8 +2104,13 @@ export default function VehicleFormPage() {
               </small>
             )}
           </label>
-          <button type="button" onClick={preencherDataHoraAtual} className={styles.agoraButton}>
-            🕐 Agora
+          <button 
+            type="button" 
+            onClick={preencherDataHoraAtual} 
+            className={`${styles.agoraButton} ${verificarProximidadeViradaDia(tempoAtual) ? styles.proximoVirada : ''}`}
+            title={`Preencher com data/hora atual: ${tempoAtual.toLocaleString('pt-BR')}${verificarProximidadeViradaDia(tempoAtual) ? ' ⚠️ Próximo à virada do dia' : ''}`}
+          >
+            {verificarProximidadeViradaDia(tempoAtual) ? '⚠️🕐' : '🕐'} Agora
           </button>
         </div>
 
@@ -2061,6 +2312,7 @@ export default function VehicleFormPage() {
               <th>Cor</th>
               <th>Local</th>
               <th>Data Entrada</th>
+              <th>Hora Entrada</th>
               <th>Tempo Permitido</th>
               <th>Tempo<br />Decorrido</th>
               <th>Tempo Excedido</th>
@@ -2079,9 +2331,10 @@ export default function VehicleFormPage() {
                 <td>{v.modelo}</td>
                 <td>{v.cor}</td>
                 <td>{v.localEstacionamento || '-'}</td>
-                <td>{v.dataEntrada}</td>
+                <td>{v.dataEntrada ? v.dataEntrada.split('-').reverse().join('/') : '-'}</td>
+                <td>{v.horaEntrada || '-'}</td>
                 <td className={v.duracaoMinutos === 43200 ? styles.duracaoMensal : ''}>
-                  {calcularTempoPermitido(v.duracaoMinutos)}
+                  {calcularTempoPermitido(v.duracaoMinutos, v.tipoContrato)}
                 </td>
                 <td className={obterClasseTempoDecorrido(v.dataEntrada)}>
                   {calcularTempoDecorrido(v.dataEntrada, v.tipoContrato)}
