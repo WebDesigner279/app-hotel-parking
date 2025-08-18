@@ -1235,25 +1235,58 @@ export default function VehicleFormPage() {
     // Calcular tempo excedido baseado na duração corrigida
     const tempoExcedido = diferencaMinutos - duracaoCorrigida;
     
+    // Determinar se é contrato por hora/horas ou por 30 dias
+    const ehContratoMensal = duracaoCorrigida === 43200; // 30 dias em minutos
+    
     // Se ainda não excedeu o tempo permitido
     if (tempoExcedido <= 0) {
-      return "Dentro do prazo";
+      return ehContratoMensal ? "No Prazo" : "No Tempo";
     }
     
-    // Formatação baseada na magnitude do tempo excedido
-    if (tempoExcedido < 60) {
-      return `${tempoExcedido} min`;
-    } else if (tempoExcedido < 1440) {
-      const horas = Math.floor(tempoExcedido / 60);
-      const minutos = tempoExcedido % 60;
-      return minutos > 0 ? `${horas}h ${minutos}min` : `${horas}h`;
-    } else {
-      const dias = Math.floor(tempoExcedido / 1440);
-      const horas = Math.floor((tempoExcedido % 1440) / 60);
-      if (horas > 0) {
-        return `${dias}d ${horas}h`;
+    // Se excedeu o tempo permitido
+    if (ehContratoMensal) {
+      // Para contratos de 30 dias, mostrar "Prazo Excedido" + tempo excedido
+      if (tempoExcedido < 60) {
+        return `Prazo Excedido: ${tempoExcedido} min`;
+      } else if (tempoExcedido < 1440) {
+        const horas = Math.floor(tempoExcedido / 60);
+        const minutos = tempoExcedido % 60;
+        return minutos > 0 ? `Prazo Excedido: ${horas}h ${minutos}min` : `Prazo Excedido: ${horas}h`;
       } else {
-        return `${dias} dia${dias > 1 ? 's' : ''}`;
+        const dias = Math.floor(tempoExcedido / 1440);
+        const horas = Math.floor((tempoExcedido % 1440) / 60);
+        const minutos = tempoExcedido % 60;
+        if (horas > 0 && minutos > 0) {
+          return `Prazo Excedido: ${dias}d ${horas}h ${minutos}min`;
+        } else if (horas > 0) {
+          return `Prazo Excedido: ${dias}d ${horas}h`;
+        } else if (minutos > 0) {
+          return `Prazo Excedido: ${dias} dia${dias > 1 ? 's' : ''} ${minutos}min`;
+        } else {
+          return `Prazo Excedido: ${dias} dia${dias > 1 ? 's' : ''}`;
+        }
+      }
+    } else {
+      // Para contratos por hora/horas, mostrar "Tempo Excedido" + tempo excedido
+      if (tempoExcedido < 60) {
+        return `Tempo Excedido: ${tempoExcedido} min`;
+      } else if (tempoExcedido < 1440) {
+        const horas = Math.floor(tempoExcedido / 60);
+        const minutos = tempoExcedido % 60;
+        return minutos > 0 ? `Tempo Excedido: ${horas}h ${minutos}min` : `Tempo Excedido: ${horas}h`;
+      } else {
+        const dias = Math.floor(tempoExcedido / 1440);
+        const horas = Math.floor((tempoExcedido % 1440) / 60);
+        const minutos = tempoExcedido % 60;
+        if (horas > 0 && minutos > 0) {
+          return `Tempo Excedido: ${dias}d ${horas}h ${minutos}min`;
+        } else if (horas > 0) {
+          return `Tempo Excedido: ${dias}d ${horas}h`;
+        } else if (minutos > 0) {
+          return `Tempo Excedido: ${dias} dia${dias > 1 ? 's' : ''} ${minutos}min`;
+        } else {
+          return `Tempo Excedido: ${dias} dia${dias > 1 ? 's' : ''}`;
+        }
       }
     }
   };
@@ -1493,9 +1526,11 @@ export default function VehicleFormPage() {
       const linhas = resultados.map(v => {
         const tempoExcedido = calcularTempoExcedido(v.dataEntrada, v.horaEntrada, v.duracaoMinutos, v.tipoContrato, tempoExportacao);
         let status = 'Normal';
-        if (tempoExcedido.includes('Dentro do prazo')) {
+        
+        // Determinar status baseado no novo formato de retorno
+        if (tempoExcedido.includes('No Tempo') || tempoExcedido.includes('No Prazo')) {
           status = 'OK';
-        } else if (tempoExcedido !== 'Dentro do prazo' && tempoExcedido !== 'Aguardando início') {
+        } else if (tempoExcedido.includes('Tempo Excedido') || tempoExcedido.includes('Prazo Excedido')) {
           status = 'Excedido';
         } else if (tempoExcedido.includes('Aguardando')) {
           status = 'Agendado';
